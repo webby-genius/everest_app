@@ -1,0 +1,34 @@
+class StringValues {
+  static const doNotHaveAccount = "Don't have an account?";
+  static const aboutUs = 'About Us';
+  static const account = 'Account';
+  static const signUpTxt = ' sign Up';
+  static const alreadyAccountTxt = 'Already have an account?';
+  static const login = 'Sign In';
+  static const activity = "Activity";
+  static const addPhoneNumber = 'Add Phone Number';
+  static const alreadyHaveAccount = "Already have an account?";
+  static const apply = 'Apply';
+  static const birthDate = 'Date of Birth';
+  static const cancel = 'Cancel';
+  static const changeEmail = 'Change Email';
+  static const changePassword = 'Change Password';
+  static const changePasswordDesc = 'Change your password.';
+  static const confirmPassword = 'Confirm Password';
+  static const currentPassword = "Current Password";
+  static const deactivateAccount = 'Deactivate Account';
+  static const dob = 'DOB';
+  static const download = 'Download';
+  static const email = 'Email';
+  static const noInternet = 'No Internet';
+  static const enterEmail = 'Enter your email';
+  static const enterNewPassword = 'Enter a new password';
+  static const enterOldPassword = 'Enter current password';
+  static const enterPassword = 'Enter a password';
+  static const enterPhone = 'Enter your phone number';
+  static const enterPhoneNo = 'Enter a valid phone number';
+  static const enterPhoneToAdd = 'Enter a phone number you want to add.';
+  static const error = 'error';
+  static const errorOccurred = 'An error occurred, please try again.';
+  static const logout = 'Logout';
+}
