@@ -27,7 +27,13 @@ class _ForgetPwdScreenState extends State<ForgetPwdScreen> with Validators {
         return Scaffold(
           backgroundColor: ColorUtils.whiteColor,
           // resizeToAvoidBottomInset: false,
-          appBar: AppBar(),
+          appBar: AppBar(
+            title: Text(
+              "Forgot Password",
+              style: size20(fw: FW.bold),
+            ),
+            centerTitle: true,
+          ),
           body: GestureDetector(
             onTap: () {
               setState(() {
