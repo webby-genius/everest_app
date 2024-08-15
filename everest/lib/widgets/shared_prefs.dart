@@ -1,4 +1,3 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
@@ -8,7 +7,7 @@ class SharedPrefs {
     prefs = await SharedPreferences.getInstance();
   }
 
-
+  static String isRoute = 'Nothing';
   static String applicationId = "appId";
   static String userId = "user_id";
   static String userInfo = "user_info";

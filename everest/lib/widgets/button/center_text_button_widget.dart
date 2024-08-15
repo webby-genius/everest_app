@@ -51,7 +51,7 @@ class CenterTextButtonWidget extends StatelessWidget {
             width: width ?? screenSize.width * 0.92,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: color ?? ColorUtils.primaryColor,
+              color: color ?? ColorUtils.darkChatBubbleColor,
               gradient: LinearGradient(
                 colors: gradientColor ?? ColorUtils.darkRedGradient,
                 begin: Alignment.centerLeft,

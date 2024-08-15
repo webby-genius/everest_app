@@ -1,3 +1,4 @@
+import 'package:everest/Routes/app_route.dart';
 import 'package:everest/Routes/provider_bindings.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/view/splash_screen/splash_screen.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: ColorUtils.whiteColor,
             colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(background: ColorUtils.blackColor10),
           ),
+          onGenerateRoute: RouteUtils.onGenerateRoute,
           home: SplashScreen(),
         ));
   }

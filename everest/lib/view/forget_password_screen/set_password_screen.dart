@@ -1,26 +1,24 @@
-import 'package:everest/Routes/app_route.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
-import 'package:everest/view/forget_password_screen/forget_pwd_screen%20copy.dart';
 import 'package:everest/view/login_screen/login_provider.dart';
+import 'package:everest/view/login_screen/login_screen.dart';
 import 'package:everest/widgets/button/center_text_button_widget.dart';
+import 'package:everest/widgets/common_toast.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
 import 'package:everest/widgets/custom_safearea.dart';
 import 'package:everest/widgets/custom_textfield/textfield_widget.dart';
-import 'package:everest/widgets/shared_prefs.dart';
 import 'package:everest/widgets/validations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SetPasswordScreen extends StatefulWidget {
+  const SetPasswordScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SetPasswordScreen> createState() => _SetPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with Validators {
+class _SetPasswordScreenState extends State<SetPasswordScreen> with Validators {
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -30,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> with Validators {
         return Scaffold(
           backgroundColor: ColorUtils.whiteColor,
           // resizeToAvoidBottomInset: false,
+          appBar: AppBar(),
           body: GestureDetector(
             onTap: () {
               setState(() {
@@ -54,15 +53,22 @@ class _LoginScreenState extends State<LoginScreen> with Validators {
                       )),
                       TextFieldWidget(
                         controller: provider.newPasswordController,
-                        hintText: "ID/Email",
-                        lable: "Email address",
-                        validator: validateEmailForm,
+                        hintText: "********",
+                        lable: "New Password",
+                        isObSecure: provider.newObSecureData,
+                        validator: validateIsStrongPassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            provider.newObSecureData = !provider.newObSecureData;
+                          },
+                          icon: provider.newObSecureData ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
+                        ),
                       ),
                       const SizedBox(height: 15),
                       TextFieldWidget(
                         controller: provider.conformPasswordController,
                         hintText: "********",
-                        lable: "Password",
+                        lable: "Conform Password",
                         isObSecure: provider.obSecureData,
                         validator: validateIsStrongPassword,
                         suffixIcon: IconButton(
@@ -72,38 +78,25 @@ class _LoginScreenState extends State<LoginScreen> with Validators {
                           icon: provider.obSecureData ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ForgetPwdScreen(),
-                                ));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Text(
-                              "Forgot Password?",
-                              style: size15(fontColor: ColorUtils.darkChatBubbleColor, fw: FW.medium),
-                            ),
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 40),
                       CenterTextButtonWidget(
-                        onTap: () async {
+                        onTap: () {
                           if (formKey.currentState!.validate()) {
-                            await SharedPrefs.prefs.setString(SharedPrefs.isRoute, 'Login');
-                            Navigator.pushNamedAndRemoveUntil(context, RouteUtils.dashBoardScreen, (route) => false);
                             debugPrint("SUCCESS");
+                            if (provider.conformPasswordController.text == provider.newPasswordController.text) {
+                              Navigator.pushAndRemoveUntil(
+                                  context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
+                              provider.conformPasswordController.clear();
+                              provider.forgetEmailController.clear();
+                              provider.newPasswordController.clear();
+                            } else {
+                              FlutterToastWidget.show("Passwords do not match. Please check and try again.", "error");
+                            }
                           }
                           FocusScope.of(context).unfocus();
                         },
                         child: Text(
-                          "Login",
+                          "Submit",
                           style: size20(fontColor: ColorUtils.whiteColor, fw: FW.bold),
                         ),
                       ),

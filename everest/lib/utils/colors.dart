@@ -41,7 +41,7 @@ class ColorUtils {
 
   static const Color primaryLightColor = Color.fromARGB(200, 240, 90, 100);
 
-  static const Color successColor = Color.fromARGB(255, 76, 175, 80);
+  static const Color successColor = Color.fromARGB(255, 23, 129, 26);
   static const Color errorColor = Color.fromARGB(255, 244, 67, 54);
   static const Color warningColor = Color.fromARGB(255, 240, 156, 0);
   static final List<Color> whiteColorGradient = [
@@ -61,8 +61,8 @@ class ColorUtils {
     const Color.fromARGB(255, 239, 35, 35),
   ];
   static final List<Color> darkRedGradient = [
-    const Color(0xffCC2626),
-    const Color.fromARGB(255, 239, 35, 35),
+    const Color.fromARGB(255, 18, 70, 150),
+    const Color.fromARGB(255, 18, 66, 148),
   ];
   static final List<Color> greyColorGradient = [
     Colors.black38,

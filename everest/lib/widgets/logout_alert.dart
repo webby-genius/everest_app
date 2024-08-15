@@ -1,5 +1,6 @@
 import 'package:everest/utils/colors.dart';
 import 'package:everest/view/dashboard_screen/dashboard_screen.dart';
+import 'package:everest/view/login_screen/login_screen.dart';
 import 'package:everest/widgets/shared_prefs.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +59,7 @@ class LogOutAlert extends StatelessWidget {
     SharedPrefs.prefs.clear();
     SharedPrefs.prefs.setBool(SharedPrefs.isLoginKey, false);
 
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => DashBoardScreen()), (route) => false);
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (route) => false);
   }
 
   @override

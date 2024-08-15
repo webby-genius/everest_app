@@ -55,6 +55,13 @@ class TextFieldWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 3, left: 5),
+          child: Text(
+            lable!,
+            style: size14(fontColor: ColorUtils.blackColor),
+          ),
+        ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
@@ -83,42 +90,28 @@ class TextFieldWidget extends StatelessWidget {
                 isDense: true,
                 errorMaxLines: 2,
                 fillColor: Colors.white,
-                filled: true,
+                // filled: true,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Colors.grey,
-                    width: 1.5,
-                  ),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Colors.grey,
-                    width: 1.5,
-                  ),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Colors.grey,
-                    width: 1.5,
-                  ),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
                 ),
                 labelText: hintText,
                 // hintText: hintText,
-                labelStyle: size13(),
+                labelStyle: size13(fontColor: ColorUtils.blackColor60),
                 prefixIcon: prefixIcon,
                 suffixIcon: suffixIcon,
-                errorStyle: const TextStyle(
-                  color: Colors.red,
-                ),
+                errorStyle: const TextStyle(color: Colors.red),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                    width: 1.5,
-                  ),
+                  borderSide: const BorderSide(color: Colors.red, width: 1.5),
                 ),
               ),
               autofocus: false,

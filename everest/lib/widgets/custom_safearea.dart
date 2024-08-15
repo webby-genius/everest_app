@@ -17,7 +17,7 @@ class SafeAreaWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: color ?? ColorUtils.primaryColor,
+      color: color ?? ColorUtils.darkChatBubbleColor,
       child: SafeArea(
         top: isTop ?? true,
         bottom: isBottom ?? false,

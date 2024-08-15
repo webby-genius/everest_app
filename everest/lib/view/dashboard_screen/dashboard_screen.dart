@@ -79,6 +79,8 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                       child: Column(
                         children: [
                           const SizedBox(height: 40),
+                          const SizedBox(height: 40),
+                          Divider(),
                           ListTile(
                             dense: true,
                             onTap: () {
@@ -90,9 +92,10 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                             },
                             title: Text(
                               'Home Screen',
-                              style: size16(fw: FW.medium, fontColor: ColorUtils.blackColor),
+                              style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor),
                             ),
                           ),
+                          Divider(),
                           ListTile(
                             dense: true,
                             onTap: () {
@@ -104,9 +107,10 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                             },
                             title: Text(
                               'My Account',
-                              style: size16(fw: FW.medium, fontColor: ColorUtils.blackColor),
+                              style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor),
                             ),
                           ),
+                          Divider(),
                           ListTile(
                             dense: true,
                             onTap: () {
@@ -116,8 +120,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                                 });
                               });
                             },
-                            title: Text('View Basket', style: size16(fw: FW.medium, fontColor: ColorUtils.blackColor)),
+                            title: Text('View Basket', style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor)),
                           ),
+                          Divider(),
                           ListTile(
                             dense: true,
                             onTap: () {
@@ -127,8 +132,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                                 });
                               });
                             },
-                            title: Text('Pending Order', style: size16(fw: FW.medium, fontColor: ColorUtils.blackColor)),
+                            title: Text('Pending Order', style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor)),
                           ),
+                          Divider(),
                           ListTile(
                             dense: true,
                             onTap: () {
@@ -137,8 +143,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                               setState(() {});
                             },
                             leading: const Icon(Icons.logout_outlined, color: ColorUtils.blackColor, size: 22),
-                            title: Text('Logout', style: size16(fw: FW.medium, fontColor: ColorUtils.blackColor)),
+                            title: Text('Logout', style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor)),
                           ),
+                          Divider(),
                         ],
                       ),
                     ),
