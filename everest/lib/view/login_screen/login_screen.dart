@@ -1,7 +1,7 @@
 import 'package:everest/Routes/app_route.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
-import 'package:everest/view/forget_password_screen/forget_pwd_screen%20copy.dart';
+import 'package:everest/view/forget_password_screen/forget_pwd_screen.dart';
 import 'package:everest/view/login_screen/login_provider.dart';
 import 'package:everest/widgets/button/center_text_button_widget.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
@@ -10,7 +10,6 @@ import 'package:everest/widgets/custom_textfield/textfield_widget.dart';
 import 'package:everest/widgets/shared_prefs.dart';
 import 'package:everest/widgets/validations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -53,17 +52,18 @@ class _LoginScreenState extends State<LoginScreen> with Validators {
                         width: 200,
                       )),
                       TextFieldWidget(
-                        controller: provider.newPasswordController,
+                        controller: provider.emailController,
                         hintText: "ID/Email",
                         lable: "Email address",
                         validator: validateEmailForm,
                       ),
                       const SizedBox(height: 15),
                       TextFieldWidget(
-                        controller: provider.conformPasswordController,
+                        controller: provider.passwordController,
                         hintText: "********",
                         lable: "Password",
                         isObSecure: provider.obSecureData,
+                        textInputAction: TextInputAction.done,
                         validator: validateIsStrongPassword,
                         suffixIcon: IconButton(
                           onPressed: () {
@@ -98,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> with Validators {
                           if (formKey.currentState!.validate()) {
                             await SharedPrefs.prefs.setString(SharedPrefs.isRoute, 'Login');
                             Navigator.pushNamedAndRemoveUntil(context, RouteUtils.dashBoardScreen, (route) => false);
+                            provider.clearFields();
                             debugPrint("SUCCESS");
                           }
                           FocusScope.of(context).unfocus();

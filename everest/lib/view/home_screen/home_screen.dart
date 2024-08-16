@@ -1,5 +1,6 @@
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
+import 'package:everest/view/barcode_screen/barcode_scanner_screen.dart';
 import 'package:everest/view/checkout_screen/check_out_screen.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/widgets/common_toast.dart';
@@ -66,7 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BarcodeScanScreen(),
+                            ));
+                      },
                       child: Icon(
                         Icons.qr_code_scanner_sharp,
                         color: Colors.white,

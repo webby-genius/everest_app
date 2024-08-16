@@ -65,34 +65,39 @@ class OrderSummary extends StatelessWidget {
 
     double total = subtotal;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("PRODUCT", style: size15(fw: FW.bold)),
-              Text("SUBTOTAL", style: size15(fw: FW.bold)),
-            ],
-          ),
-          Divider(color: ColorUtils.blackColor40),
-          for (var item in orderItems)
-            OrderItem(
-              productName: item.productName,
-              quantity: item.quantity,
-              totalPrice: item.totalPrice,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("PRODUCT", style: size15(fw: FW.bold)),
+                Text("SUBTOTAL", style: size15(fw: FW.bold)),
+              ],
             ),
-          Divider(color: ColorUtils.blackColor40),
-          SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
-          SizedBox(height: 8),
-          SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
-          SizedBox(height: 16),
-          DeliveryOptions(),
-          Spacer(),
-          // BottomButtons(), Uncomment this if needed
-        ],
+            Divider(color: ColorUtils.blackColor40),
+            for (var item in orderItems)
+              OrderItem(
+                productName: item.productName,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice,
+              ),
+            Divider(color: ColorUtils.blackColor40),
+            SizedBox(height: 8),
+            SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
+            SizedBox(height: 8),
+            Divider(color: ColorUtils.blackColor40),
+            SizedBox(height: 8),
+            SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
+            SizedBox(height: 8),
+            Divider(color: ColorUtils.blackColor40),
+            DeliveryOptions(),
+            // BottomButtons(), Uncomment this if needed
+          ],
+        ),
       ),
     );
   }
@@ -178,31 +183,30 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ListTile(
+        RadioListTile(
+          value: "Click & Collect",
           title: Text('CLICK & COLLECT', style: size16(fw: FW.medium)),
-          leading: Radio<String>(
-            value: 'Click & Collect',
-            groupValue: selectedOption,
-            activeColor: ColorUtils.darkChatBubbleColor,
-            onChanged: (value) {
-              setState(() {
-                selectedOption = value!;
-              });
-            },
-          ),
+          tileColor: ColorUtils.blackColor20,
+          groupValue: selectedOption,
+          activeColor: ColorUtils.darkChatBubbleColor,
+          onChanged: (value) {
+            setState(() {
+              selectedOption = value!;
+            });
+          },
         ),
-        ListTile(
+        SizedBox(height: 1),
+        RadioListTile(
+          value: "Delivery Order",
           title: Text('DELIVERY ORDER', style: size16(fw: FW.medium)),
-          leading: Radio<String>(
-            value: 'Delivery Order',
-            groupValue: selectedOption,
-            activeColor: ColorUtils.darkChatBubbleColor,
-            onChanged: (value) {
-              setState(() {
-                selectedOption = value!;
-              });
-            },
-          ),
+          groupValue: selectedOption,
+          activeColor: ColorUtils.darkChatBubbleColor,
+          tileColor: ColorUtils.blackColor20,
+          onChanged: (value) {
+            setState(() {
+              selectedOption = value!;
+            });
+          },
         ),
       ],
     );

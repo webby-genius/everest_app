@@ -1,7 +1,7 @@
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
+import 'package:everest/view/forget_password_screen/forget_pwd_provider.dart';
 import 'package:everest/view/forget_password_screen/set_password_screen.dart';
-import 'package:everest/view/login_screen/login_provider.dart';
 import 'package:everest/widgets/button/center_text_button_widget.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
 import 'package:everest/widgets/custom_safearea.dart';
@@ -21,9 +21,16 @@ class _ForgetPwdScreenState extends State<ForgetPwdScreen> with Validators {
   final formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<ForgetPwdProvider>(context, listen: false);
+    provider.forgetEmailController.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeAreaWidget(
-      child: Consumer(builder: (context, LoginProvider provider, _) {
+      child: Consumer(builder: (context, ForgetPwdProvider provider, _) {
         return Scaffold(
           backgroundColor: ColorUtils.whiteColor,
           // resizeToAvoidBottomInset: false,
@@ -49,13 +56,9 @@ class _ForgetPwdScreenState extends State<ForgetPwdScreen> with Validators {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       Center(
-                          child: assetPngUtils(
-                        assetImage: "assets/image/everest_wholesale logo.png",
-                        height: 200,
-                        width: 200,
-                      )),
+                          child: assetPngUtils(assetImage: "assets/image/everest_wholesale logo.png", height: 200, width: 200)),
                       TextFieldWidget(
                         controller: provider.forgetEmailController,
                         hintText: "ID/Email",

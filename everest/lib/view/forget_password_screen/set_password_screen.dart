@@ -1,6 +1,6 @@
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
-import 'package:everest/view/login_screen/login_provider.dart';
+import 'package:everest/view/forget_password_screen/forget_pwd_provider.dart';
 import 'package:everest/view/login_screen/login_screen.dart';
 import 'package:everest/widgets/button/center_text_button_widget.dart';
 import 'package:everest/widgets/common_toast.dart';
@@ -22,13 +22,26 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> with Validators {
   final formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<ForgetPwdProvider>(context, listen: false);
+    provider.conformPasswordController.clear();
+    provider.newPasswordController.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeAreaWidget(
-      child: Consumer(builder: (context, LoginProvider provider, _) {
+      child: Consumer(builder: (context, ForgetPwdProvider provider, _) {
         return Scaffold(
           backgroundColor: ColorUtils.whiteColor,
           // resizeToAvoidBottomInset: false,
-          appBar: AppBar(),
+          appBar: AppBar(
+            title: Text(
+              "Reset Password",
+              style: size20(fw: FW.bold),
+            ),
+          ),
           body: GestureDetector(
             onTap: () {
               setState(() {
@@ -44,13 +57,21 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> with Validators {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
                       Center(
                           child: assetPngUtils(
                         assetImage: "assets/image/everest_wholesale logo.png",
                         height: 200,
                         width: 200,
                       )),
+                      // Text(
+                      //   "Enter New Password",
+                      //   style: size22(fw: FW.bold, fontColor: ColorUtils.darkChatBubbleColor),
+                      // ),
+                      // Text(
+                      //   "Password must be 8-20 characters long",
+                      //   style: size12(fontColor: ColorUtils.darkChatBubbleColor.withOpacity(0.5)),
+                      // ),
+                      const SizedBox(height: 10),
                       TextFieldWidget(
                         controller: provider.newPasswordController,
                         hintText: "********",
@@ -86,9 +107,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> with Validators {
                             if (provider.conformPasswordController.text == provider.newPasswordController.text) {
                               Navigator.pushAndRemoveUntil(
                                   context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
-                              provider.conformPasswordController.clear();
-                              provider.forgetEmailController.clear();
-                              provider.newPasswordController.clear();
+                              provider.clearFields();
                             } else {
                               FlutterToastWidget.show("Passwords do not match. Please check and try again.", "error");
                             }

@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 
 class LoginProvider extends ChangeNotifier {
-  final forgetEmailController = TextEditingController();
-  final newPasswordController = TextEditingController();
-  final conformPasswordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  bool _obSecureData = false;
-  bool get obSecureData => _obSecureData;
-  set obSecureData(bool value) {
-    _obSecureData = value;
+  clearFields() {
+    emailController.clear();
+    passwordController.clear();
     notifyListeners();
   }
 
-  bool _newObSecureData = false;
-  bool get newObSecureData => _newObSecureData;
-  set newObSecureData(bool value) {
-    _newObSecureData = value;
+  bool _obSecureData = true;
+  bool get obSecureData => _obSecureData;
+  set obSecureData(bool value) {
+    _obSecureData = value;
     notifyListeners();
   }
 }
