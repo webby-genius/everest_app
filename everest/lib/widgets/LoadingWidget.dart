@@ -79,11 +79,11 @@ class CircularProgressIndicatorWidget extends StatelessWidget {
                 Container(
                   height: screenSize.width * 0.23,
                   width: screenSize.width * 0.23,
-                  decoration: BoxDecoration(color: ColorUtils.loaderColor, borderRadius: BorderRadius.circular(15)),
+                  decoration: BoxDecoration(color: ColorUtils.darkChatBubbleColor.withOpacity(0.20), borderRadius: BorderRadius.circular(15)),
                   child: Center(
                     child: Platform.isIOS
-                        ? const CupertinoActivityIndicator(radius: 20, color: ColorUtils.primaryColor)
-                        : const CircularProgressIndicator(color: ColorUtils.primaryColor),
+                        ? const CupertinoActivityIndicator(radius: 20, color: ColorUtils.darkChatBubbleColor)
+                        : const CircularProgressIndicator(color: ColorUtils.darkChatBubbleColor),
                   ),
                 ),
               ],

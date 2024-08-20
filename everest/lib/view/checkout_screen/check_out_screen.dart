@@ -225,7 +225,7 @@ class BottomButtons extends StatelessWidget {
               child: Container(
                 height: 50,
                 margin: EdgeInsets.only(left: 5),
-                color: ColorUtils.linkColor,
+                color: ColorUtils.darkChatBubbleColor,
                 child: Center(
                   child: Text(
                     'CONTINUE SHOPPING',
@@ -239,7 +239,7 @@ class BottomButtons extends StatelessWidget {
               child: Container(
                 height: 50,
                 margin: EdgeInsets.only(right: 5),
-                color: ColorUtils.linkColor,
+                color: ColorUtils.darkChatBubbleColor,
                 child: Center(
                   child: Text(
                     'SAVE ORDER',
@@ -254,7 +254,7 @@ class BottomButtons extends StatelessWidget {
         Container(
           height: 60,
           width: double.infinity,
-          color: ColorUtils.successColor,
+          color: ColorUtils.darkChatBubbleColor,
           child: Center(
             child: Text(
               'PROCEED TO ORDER',

@@ -56,9 +56,7 @@ class CustomTextFormField extends StatelessWidget {
           visible: label != "" ? true : false,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5),
-            child: Text(
-              label ?? "",
-            ),
+            child: Text(label ?? ""),
           ),
         ),
         TextFormField(
@@ -66,6 +64,7 @@ class CustomTextFormField extends StatelessWidget {
           readOnly: readOnly,
           showCursor: showCursor,
           maxLines: maxLines,
+          autofocus: false,
           onChanged: onChanged ?? (value) {},
           onTap: onTap,
           focusNode: focusNode,

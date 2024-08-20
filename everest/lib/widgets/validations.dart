@@ -42,20 +42,19 @@ mixin Validators {
   String? validateIsStrongPassword(String? password) {
     if ((password ?? "").trim().isEmpty) {
       return "Password can't be empty";
-    } else if ((password ?? "").trim().length < 8 || (password ?? "").trim().length > 20) {
+    } else if ((password ?? "").trim().length < 4 || (password ?? "").trim().length > 20) {
       // Check if the password is within the 8-20 character limit
-      return "Password must be 8-20 characters long";
+      return "Password must be 5-20 characters long";
     }
     return null;
   }
 
-  String? firstName(String? firstName) {
-    if ((firstName ?? '').trim().isEmpty) {
-      return "*Enter first Name";
+  String? userName(String? userName) {
+    if ((userName ?? '').trim().isEmpty) {
+      return "*Enter User Name";
     }
     return null;
   }
-
 
   String? mobilePhone(String? mobilePhone) {
     if ((mobilePhone ?? '').trim().isEmpty) {

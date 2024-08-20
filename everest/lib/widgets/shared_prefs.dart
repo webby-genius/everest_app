@@ -9,6 +9,7 @@ class SharedPrefs {
 
   static String isRoute = 'Nothing';
   static String applicationId = "appId";
+  static String userToken = "token";
   static String userId = "user_id";
   static String userInfo = "user_info";
   static String email = "email";

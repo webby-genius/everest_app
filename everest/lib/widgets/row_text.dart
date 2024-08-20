@@ -25,10 +25,10 @@ class RowText extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          flex: flex1 ?? 2,
+          flex: flex1 ?? 3,
           child: Text(text1, style: style1 ?? size14(fontColor: ColorUtils.blackColor60)),
         ),
-        const Text(" : "),
+        const Text(": "),
         Expanded(
           flex: flex2 ?? 4,
           child: Text(capitalize(text2) ?? "", style: style2 ?? size15(fw: FW.medium)),

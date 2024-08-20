@@ -1,33 +1,70 @@
-import 'package:everest/utils/assets.dart';
+import 'dart:convert';
+
+import 'package:everest/apis/api.dart';
+import 'package:everest/apis/api_manager.dart';
+import 'package:everest/apis/api_urls.dart';
+import 'package:everest/apis/models/product_item_model.dart';
+import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
 
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
 
   int _selectCategory = 1;
-  List<CategoryResponse> _categoryList = [
-    CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£13", catSku: "12345"),
-    CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£10", catSku: "23456"),
-    CategoryResponse(catName: "Apple Gel", catImage: PngValues.flamaImg, catPrice: "£15", catSku: "12345"),
-    CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£30", catSku: "37645"),
-    CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12765"),
-    CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£20", catSku: "13345"),
-    CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.coolKickImg, catPrice: "£25", catSku: "12345"),
-    CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12765"),
-    CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£50", catSku: "12345"),
-    CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.flamaImg, catPrice: "£5", catSku: "14745"),
-    CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12835"),
-  ];
 
-  List<CategoryResponse> _filteredCategoryList = [];
+  // List<String> _categories = ['All', 'Grocery', 'Household'];
 
-  final Map<CategoryResponse, int> _basket = {};
+  // List<String> get categories => _categories;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  set isLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  List<ProductItemResponse> _categoryList = [];
+  Future productListApiResponse({required BuildContext context}) async {
+    isLoading = true;
+    try {
+      APIResponse response = await APIManager.callAPI(
+        context: context,
+        url: ApiUrlPage.itemListUrl,
+        type: APIMethodType.GET,
+      );
+      if (response.success) {
+        List<ProductItemResponse> productItemResponse = productItemResponseFromJson(json.encode(response.response));
+        if (productItemResponse.isNotEmpty) {
+          _categoryList = productItemResponse;
+          _filteredCategoryList = _categoryList;
+          debugPrint("categoryList -->>>> ${_categoryList.length}");
+          notifyListeners();
+        } else {
+          FlutterToastWidget.show("No product found", "error");
+        }
+        isLoading = false;
+        notifyListeners();
+      } else {
+        isLoading = false;
+      }
+    } catch (e) {
+      isLoading = false;
+      debugPrint("ERROR -->> $e");
+    }
+    notifyListeners();
+  }
+
+  List<ProductItemResponse> _filteredCategoryList = [];
+  String _selectedCategory = 'All';
+
+  final Map<ProductItemResponse, int> _basket = {};
 
   HomeProvider() {
     _filteredCategoryList = _categoryList;
     searchProductController.addListener(() {
       filterProducts(searchProductController.text);
     });
+    notifyListeners();
   }
 
   int get selectCategory => _selectCategory;
@@ -36,11 +73,23 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<CategoryResponse> get categoryList => _filteredCategoryList;
+  // void selectItemCategory(String category) {
+  //   _selectedCategory = category;
+  //   filterProducts(searchProductController.text);
+  // }
 
-  Map<CategoryResponse, int> get basket => _basket;
+  List<ProductItemResponse> get categoryList => _filteredCategoryList;
 
-  void addToBasket(CategoryResponse product) {
+  Map<ProductItemResponse, int> get basket => _basket;
+
+  // String get selectedCategory => _selectedCategory;
+  // set selectedCategory(String value) {
+  //   _selectedCategory = value;
+  //   filterProducts(searchProductController.text); // Apply filter when category changes
+  //   notifyListeners();
+  // }
+
+  void addToBasket(ProductItemResponse product) {
     if (_basket.containsKey(product)) {
       _basket[product] = _basket[product]! + 1;
     } else {
@@ -49,7 +98,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeFromBasket(CategoryResponse product) {
+  void removeFromBasket(ProductItemResponse product) {
     if (_basket.containsKey(product)) {
       if (_basket[product]! > 1) {
         _basket[product] = _basket[product]! - 1;
@@ -61,76 +110,37 @@ class HomeProvider extends ChangeNotifier {
   }
 
   void filterProducts(String query) {
-    if (query.isEmpty) {
-      _filteredCategoryList = _categoryList;
+    List<ProductItemResponse> filteredByQuery =
+        _categoryList.where((product) => product.itemName?.toLowerCase().contains(query.toLowerCase()) ?? false).toList();
+
+    if (_selectedCategory != "All") {
+      // _filteredCategoryList = filteredByQuery.where((product) => product.categoryType == _selectedCategory).toList();
     } else {
-      _filteredCategoryList =
-          _categoryList.where((product) => product.catName?.toLowerCase().contains(query.toLowerCase()) ?? false).toList();
+      debugPrint("💪");
+      _filteredCategoryList = filteredByQuery;
     }
+    // _filteredCategoryList = filteredByQuery;
+
     notifyListeners();
   }
 }
 
-// class HomeProvider extends ChangeNotifier {
-//   final searchProductController = TextEditingController();
+//-=-=-=-=-=-=-=-=-===-=--=-=-=-=----=-=-===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-//   int _selectCategory = 1;
+// class CategoryResponse {
+//   CategoryResponse({
+//     this.catImage,
+//     this.catName,
+//     this.catPrice,
+//     this.catSku,
+//     this.categoryType,
+//   });
 
-//   int get selectCategory => _selectCategory;
-//   set selectCategory(int value) {
-//     _selectCategory = value;
-//     notifyListeners();
-//   }
-
-//   List<CategoryResponse> categoryList = [
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£13", catSku: "12345"),
-//     CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£10", catSku: "23456"),
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£15", catSku: "12345"),
-//     CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£30", catSku: "37645"),
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12765"),
-//     CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.coolKickImg, catPrice: "£20", catSku: "13345"),
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.coolKickImg, catPrice: "£25", catSku: "12345"),
-//     CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12765"),
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£50", catSku: "12345"),
-//     CategoryResponse(catName: "Shower Gel Africa Show", catImage: PngValues.flamaImg, catPrice: "£5", catSku: "14745"),
-//     CategoryResponse(catName: "Shower Gel Africa ", catImage: PngValues.flamaImg, catPrice: "£10", catSku: "12835"),
-//   ];
-
-//   // Basket to store product and their quantities
-//   final Map<CategoryResponse, int> _basket = {};
-
-//   Map<CategoryResponse, int> get basket => _basket;
-
-//   void addToBasket(CategoryResponse product) {
-//     if (_basket.containsKey(product)) {
-//       _basket[product] = _basket[product]! + 1;
-//     } else {
-//       _basket[product] = 1;
-//     }
-//     notifyListeners();
-//   }
-
-//   void removeFromBasket(CategoryResponse product) {
-//     if (_basket.containsKey(product)) {
-//       if (_basket[product]! > 1) {
-//         _basket[product] = _basket[product]! - 1;
-//       } else {
-//         _basket.remove(product);
-//       }
-//       notifyListeners();
-//     }
-//   }
+//   String? catImage;
+//   String? catPrice;
+//   String? catName;
+//   String? catSku;
+//   String? categoryType;
 // }
 
-class CategoryResponse {
-  CategoryResponse({
-    this.catImage,
-    this.catName,
-    this.catPrice,
-    this.catSku,
-  });
-  String? catImage;
-  String? catPrice;
-  String? catName;
-  String? catSku;
-}
+//-=-=-=-=-=-=-=-=-===-=--=-=-=-=----=-=-===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
