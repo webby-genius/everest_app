@@ -1,6 +1,7 @@
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 
 // Order Item Model
 class OrderItemModel {
@@ -23,11 +24,23 @@ class OrderItemModel {
 }
 
 // Main Order Summary Screen
-class OrderSummaryScreen extends StatelessWidget {
+class OrderSummaryScreen extends StatefulWidget {
+  bool isDrawerScreen;
+  AdvancedDrawerController? advancedDrawerController;
   final List<OrderItemModel> orderItems;
 
-  OrderSummaryScreen({Key? key, required this.orderItems}) : super(key: key);
+  OrderSummaryScreen({
+    Key? key,
+    required this.orderItems,
+    this.isDrawerScreen = false,
+    this.advancedDrawerController,
+  }) : super(key: key);
 
+  @override
+  State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+}
+
+class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,14 +50,30 @@ class OrderSummaryScreen extends StatelessWidget {
           style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor),
         ),
         backgroundColor: Color(0xFF2B3990),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back_ios, color: ColorUtils.whiteColor),
-        ),
+        leading: widget.isDrawerScreen
+            ? TextButton(
+                onPressed: () {
+                  widget.advancedDrawerController?.showDrawer();
+                },
+                child: ValueListenableBuilder<AdvancedDrawerValue>(
+                    valueListenable: widget.advancedDrawerController!,
+                    builder: (context, value, _) {
+                      return Icon(
+                        value.visible ? Icons.clear : Icons.menu,
+                        key: ValueKey<bool>(value.visible),
+                        color: Colors.white,
+                        size: 30,
+                      );
+                    }),
+              )
+            : IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.arrow_back_ios, color: ColorUtils.whiteColor),
+              ),
       ),
-      body: OrderSummary(orderItems: orderItems),
+      body: OrderSummary(orderItems: widget.orderItems),
       bottomNavigationBar: Container(height: 150, child: BottomButtons()),
     );
   }

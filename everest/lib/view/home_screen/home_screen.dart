@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     final provider = Provider.of<HomeProvider>(context, listen: false);
+    provider.basket.clear();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       provider.productListApiResponse(context: context);
     });
