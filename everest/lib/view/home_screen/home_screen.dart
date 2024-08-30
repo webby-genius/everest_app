@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     provider.basket.clear();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       provider.productListApiResponse(context: context);
+      provider.categoryApiResponse(context: context);
     });
     super.initState();
   }
@@ -134,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          // showCategoryFilterDialog();
+                                          showCategoryFilterDialog();
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(10.0),
@@ -203,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       children: [
                                         product.itemImage != 0
-                                            ? assetPngUtils(assetImage: product.itemImage.toString() ?? '', height: 70, width: 70)
+                                            ? assetPngUtils(assetImage: product.itemImage.toString(), height: 70, width: 70)
                                             : SizedBox(),
                                         Expanded(
                                           flex: 5,
@@ -378,50 +379,51 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     });
   }
-}
-  // void showCategoryFilterDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text("Select Category"),
-  //         backgroundColor: ColorUtils.whiteColor,
-  //         content: Consumer<HomeProvider>(
-  //           builder: (context, provider, _) {
-  //             return SizedBox(
-  //               width: double.maxFinite,
-  //               child: ListView.builder(
-  //                 shrinkWrap: true,
-  //                 itemCount: provider.categories.length,
-  //                 itemBuilder: (context, index) {
-  //                   final category = provider.categories[index];
-  //                   final isSelected = provider.selectedCategory == category;
-  //                   return ListTile(
-  //                     title: Text(
-  //                       category,
-  //                       style: size15(fontColor: isSelected ? ColorUtils.whiteColor : ColorUtils.blackColor),
-  //                     ),
-  //                     tileColor: isSelected ? ColorUtils.darkChatBubbleColor : Colors.transparent, // Highlight selected item
-  //                     onTap: () {
-  //                       provider.selectItemCategory(category);
-  //                       Navigator.of(context).pop();
-  //                     },
-  //                   );
-  //                 },
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             child: Text("Cancel"),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
+// }
+  void showCategoryFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Select Category"),
+          backgroundColor: ColorUtils.whiteColor,
+          content: Consumer<HomeProvider>(
+            builder: (context, provider, _) {
+              return SizedBox(
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: provider.categories.length,
+                  itemBuilder: (context, index) {
+                    final category = provider.categories[index];
+                    final isSelected = provider.selectedCategory == category.categoryName;
+                    return ListTile(
+                      title: Text(
+                        category.categoryName ?? '',
+                        style: size15(fontColor: isSelected ? ColorUtils.whiteColor : ColorUtils.blackColor),
+                      ),
+                      tileColor: isSelected ? ColorUtils.darkChatBubbleColor : Colors.transparent,
+                      onTap: () {
+                        provider.selectItemCategory(category.categoryName ?? '');
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

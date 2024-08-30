@@ -3,24 +3,48 @@ import 'dart:convert';
 import 'package:everest/apis/api.dart';
 import 'package:everest/apis/api_manager.dart';
 import 'package:everest/apis/api_urls.dart';
+import 'package:everest/apis/models/category_list_model.dart';
 import 'package:everest/apis/models/product_item_model.dart';
 import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
 
   int _selectCategory = 1;
 
-  // List<String> _categories = ['All', 'Grocery', 'Household'];
+  List<CategoryListResponse> _categories = [];
 
-  // List<String> get categories => _categories;
+  List<CategoryListResponse> get categories => _categories;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   set isLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  Future categoryApiResponse({required BuildContext context}) async {
+    try {
+      APIResponse response = await APIManager.callAPI(
+        context: context,
+        url: ApiUrlPage.categoryUrl,
+        type: APIMethodType.GET,
+      );
+      if (response.success) {
+        List<CategoryListResponse> categoryListResponse = categoryListResponseFromJson(json.encode(response.response));
+        CategoryListResponse allCategory = CategoryListResponse(categoryName: 'All');
+        if (categoryListResponse.isNotEmpty) {
+          categoryListResponse.insert(0, allCategory);
+          _categories = categoryListResponse;
+        } else {
+          categoryListResponse = [allCategory];
+        }
+      } else {}
+    } catch (e) {
+      debugPrint("ERROR --->>> $e");
+    }
   }
 
   List<ProductItemResponse> _categoryList = [];
@@ -73,21 +97,21 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void selectItemCategory(String category) {
-  //   _selectedCategory = category;
-  //   filterProducts(searchProductController.text);
-  // }
+  void selectItemCategory(String category) {
+    _selectedCategory = category;
+    filterProducts(searchProductController.text);
+  }
 
   List<ProductItemResponse> get categoryList => _filteredCategoryList;
 
   Map<ProductItemResponse, int> get basket => _basket;
 
-  // String get selectedCategory => _selectedCategory;
-  // set selectedCategory(String value) {
-  //   _selectedCategory = value;
-  //   filterProducts(searchProductController.text); // Apply filter when category changes
-  //   notifyListeners();
-  // }
+  String get selectedCategory => _selectedCategory;
+  set selectedCategory(String value) {
+    _selectedCategory = value;
+    filterProducts(searchProductController.text); // Apply filter when category changes
+    notifyListeners();
+  }
 
   void addToBasket(ProductItemResponse product) {
     if (_basket.containsKey(product)) {
@@ -114,33 +138,11 @@ class HomeProvider extends ChangeNotifier {
         _categoryList.where((product) => product.itemName?.toLowerCase().contains(query.toLowerCase()) ?? false).toList();
 
     if (_selectedCategory != "All") {
-      // _filteredCategoryList = filteredByQuery.where((product) => product.categoryType == _selectedCategory).toList();
+      _filteredCategoryList = filteredByQuery.where((product) => product.category == _selectedCategory).toList();
     } else {
       debugPrint("💪");
       _filteredCategoryList = filteredByQuery;
     }
-    // _filteredCategoryList = filteredByQuery;
-
     notifyListeners();
   }
 }
-
-//-=-=-=-=-=-=-=-=-===-=--=-=-=-=----=-=-===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-// class CategoryResponse {
-//   CategoryResponse({
-//     this.catImage,
-//     this.catName,
-//     this.catPrice,
-//     this.catSku,
-//     this.categoryType,
-//   });
-
-//   String? catImage;
-//   String? catPrice;
-//   String? catName;
-//   String? catSku;
-//   String? categoryType;
-// }
-
-//-=-=-=-=-=-=-=-=-===-=--=-=-=-=----=-=-===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

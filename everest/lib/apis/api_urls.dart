@@ -8,4 +8,5 @@ class ApiUrlPage {
   static String userInfoUrl = "$baseUrl$pathUrl/GetCurrentUserInfo";
   static String categoryUrl = "$baseUrl$pathUrl/GetCategoryList";
   static String itemListUrl = "$baseUrl$pathUrl/GetItemList";
+  static String getSingleItemByBarcodeUrl = "$baseUrl$pathUrl/GetSingleItemByBarcode";
 }
