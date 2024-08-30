@@ -20,8 +20,8 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
 
   @override
   void initState() {
-    final barcodeProvider = Provider.of<BarcodeProvider>(context, listen: false);
-    barcodeProvider.getItemByBarcodeApiResponse(context: context, barcode: "07622201500054");
+    // final barcodeProvider = Provider.of<BarcodeProvider>(context, listen: false);
+    // barcodeProvider.getItemByBarcodeApiResponse(context: context, barcode: "07622201500054");
     super.initState();
   }
 
@@ -68,7 +68,11 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                       setState(() {
                         barcodeResult = barcode.barcodes[0].rawValue;
                         if (barcodeResult != null) {
-                          barcodeProvider.getItemByBarcodeApiResponse(context: context, barcode: "07622201499662");
+                          barcodeProvider.getItemByBarcodeApiResponse(
+                            context: context,
+                            barcode: barcodeResult.toString(),
+                            // barcode: "07622201499662",
+                          );
                         }
                       });
                     },

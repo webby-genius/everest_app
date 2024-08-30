@@ -1,3 +1,4 @@
+import 'package:everest/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 import 'alert_message.dart';
@@ -12,6 +13,7 @@ class NoInternetExceptions implements Exception {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: ColorUtils.whiteColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: Text(AlertMessage.noInternet!),
           content: Text("Internet Not Available", style: TextStyle(color: Colors.black, fontSize: 14)),
