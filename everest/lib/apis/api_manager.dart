@@ -104,7 +104,7 @@ class APIManager {
             body: bodyToSend,
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 10), onTimeout: () {
+              .timeout(const Duration(seconds: 30), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });
@@ -118,7 +118,7 @@ class APIManager {
             Uri.parse(url).replace(queryParameters: body ?? {}),
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 10), onTimeout: () {
+              .timeout(const Duration(seconds: 30), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });
@@ -130,7 +130,7 @@ class APIManager {
             body: apiBody,
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 10), onTimeout: () {
+              .timeout(const Duration(seconds: 30), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });

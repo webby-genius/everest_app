@@ -9,4 +9,6 @@ class ApiUrlPage {
   static String categoryUrl = "$baseUrl$pathUrl/GetCategoryList";
   static String itemListUrl = "$baseUrl$pathUrl/GetItemList";
   static String getSingleItemByBarcodeUrl = "$baseUrl$pathUrl/GetSingleItemByBarcode";
+  static String saveOrderCartUrl = "$baseUrl$pathUrl/UpdateCart";
+  static String addNewSaleUrl = "$baseUrl$pathUrl/AddNewSale";
 }

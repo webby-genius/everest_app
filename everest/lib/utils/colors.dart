@@ -64,9 +64,10 @@ class ColorUtils {
     const Color.fromARGB(255, 18, 70, 150),
     const Color.fromARGB(255, 18, 66, 148),
   ];
-  static final List<Color> greyColorGradient = [
-    Colors.black38,
-    Colors.black38,
+  static final List<Color> greyColorGradient = [Colors.black38, Colors.black38];
+  static final List<Color> greenColorGradient = [
+    Color.fromARGB(255, 23, 129, 26),
+    Color.fromARGB(255, 23, 129, 26),
   ];
 
   static const Color transparent = Color.fromARGB(0, 0, 0, 0);

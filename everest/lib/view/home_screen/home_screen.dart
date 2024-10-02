@@ -3,7 +3,9 @@ import 'package:everest/utils/common_styles.dart';
 import 'package:everest/view/barcode_screen/barcode_scanner_screen.dart';
 import 'package:everest/view/checkout_screen/check_out_screen.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
+import 'package:everest/view/home_screen/promotion_screen.dart';
 import 'package:everest/widgets/LoadingWidget.dart';
+import 'package:everest/widgets/button/center_text_button_widget.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
 import 'package:everest/widgets/custom_safearea.dart';
 import 'package:everest/widgets/custom_textfield/custom_textfield.dart';
@@ -74,12 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CustomTextFormField(
                         hintText: "Search Product",
                         controller: provider.searchProductController,
-                        suffixIcon: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                          },
-                          child: Icon(Icons.document_scanner, size: 20),
-                        ),
+                        // suffixIcon: GestureDetector(
+                        //   onTap: () {
+                        //     FocusScope.of(context).unfocus();
+                        //   },
+                        //   child: Icon(Icons.document_scanner, size: 20),
+                        // ),
                       ),
                     ),
                     Padding(
@@ -138,8 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           showCategoryFilterDialog();
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
+                                          padding: const EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 5),
                                           child: Icon(Icons.filter_alt,
+                                              size: 28,
                                               color:
                                                   provider.selectCategory == 1 ? ColorUtils.whiteColor : ColorUtils.blackColor),
                                         ),
@@ -187,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 physics: ClampingScrollPhysics(),
                                 itemBuilder: (context, index) {
                                   final product = provider.categoryList[index];
-                                  final quantity = provider.basket[product] ?? 0;
+                                  provider.quantity = provider.basket[product] ?? 0;
                                   return Container(
                                     decoration: BoxDecoration(
                                       color: ColorUtils.whiteColor,
@@ -201,65 +204,85 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                    margin: EdgeInsets.symmetric(vertical: 2),
                                     child: Row(
                                       children: [
                                         product.itemImage != 0
-                                            ? assetPngUtils(assetImage: product.itemImage.toString(), height: 70, width: 70)
-                                            : SizedBox(),
+                                            ? networkPngUtils(networkImage: product.itemImage.toString(), height: 70, width: 70)
+                                            : assetPngUtils(
+                                                assetImage: "assets/image/everest_wholesale logo.png", height: 70, width: 70),
                                         Expanded(
                                           flex: 5,
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(product.itemName ?? '', style: size14(fw: FW.medium)),
-                                              Text("PRICE: ${product.salePrice}",
+                                              Text("PRICE: £${product.salePrice}",
                                                   style: size12(fw: FW.medium, fontColor: ColorUtils.primaryColor)),
                                               Text("PLU Code: ${product.pluCode}", style: size12(fw: FW.medium)),
                                             ],
                                           ),
                                         ),
                                         Expanded(
-                                          flex: 3,
-                                          child: quantity > 0
-                                              ? Row(
-                                                  children: [
-                                                    IconButton(
-                                                      icon: Icon(Icons.remove, color: quantity > 0 ? Colors.red : Colors.grey),
-                                                      onPressed: quantity > 0 ? () => provider.removeFromBasket(product) : null,
-                                                    ),
-                                                    Text('$quantity'),
-                                                    IconButton(
-                                                      icon: Icon(Icons.add, color: Colors.green),
-                                                      onPressed: () => provider.addToBasket(product),
-                                                    ),
-                                                  ],
-                                                )
-                                              : GestureDetector(
-                                                  onTap: () => provider.addToBasket(product),
-                                                  child: Container(
-                                                    color: ColorUtils.successColor,
-                                                    child: Center(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
-                                                        child: Text(
-                                                          "Add to Basket",
-                                                          style: size13(fw: FW.bold, fontColor: ColorUtils.whiteColor),
+                                            flex: 3,
+                                            child: provider.quantity > 0
+                                                ? Row(
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
+                                                        onPressed: provider.quantity > 0 ? () => provider.removeFromBasket(product) : null,
+                                                      ),
+                                                      Text('${provider.quantity}'),
+                                                      Padding(
+                                                        padding: const EdgeInsets.all(7.0),
+                                                        child: GestureDetector(
+                                                          child: Icon(Icons.add, color: Colors.green),
+                                                          onTap: () => provider.addToBasket(product),
                                                         ),
                                                       ),
+                                                    ],
+                                                  )
+                                                : CenterTextButtonWidget(
+                                                    height: 30,
+                                                    width: 200,
+                                                    onTap: () => provider.addToBasket(product),
+                                                    decoration: BoxDecoration(
+                                                      color: ColorUtils.successColor,
                                                     ),
-                                                  ),
-                                                ),
-                                        ),
+                                                    title: " Add to Basket ",
+                                                    style: size12(fw: FW.bold, fontColor: ColorUtils.whiteColor),
+                                                    gradientColor: ColorUtils.greenColorGradient,
+                                                  )
+                                            // GestureDetector(
+                                            //     onTap: () => provider.addToBasket(product),
+                                            //     child: Container(
+                                            //       color: ColorUtils.successColor,
+                                            //       child: Center(
+                                            //         child: Padding(
+                                            //           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                                            //           child: Text(
+                                            //             "Add to Basket",
+                                            //             style: size13(fw: FW.bold, fontColor: ColorUtils.whiteColor),
+                                            //           ),
+                                            //         ),
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            ),
                                       ],
                                     ),
                                   );
                                 },
                               )
-                            : Column(
-                                children: [
-                                  Text("PROMOTION PAGE"),
-                                ],
+                            : PromotionScreen(
+                                categoryList: provider.categoryList,
+                                basket: provider.basket,
                               ),
+                        // Column(
+                        //     children: [
+                        //       Text("PROMOTION PAGE"),
+                        //     ],
+                        //   ),
                       ),
                     ),
                   ],
@@ -351,6 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   productName: entry.key.itemName ?? '',
                                   quantity: entry.value,
                                   price: entry.key.salePrice.toString(),
+                                  itemId: entry.key.itemId ?? 0,
                                 );
                               }).toList(),
                             ),

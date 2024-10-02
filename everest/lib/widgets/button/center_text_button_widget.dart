@@ -15,6 +15,7 @@ class CenterTextButtonWidget extends StatelessWidget {
   final List<Color>? gradientColor;
   final double? elevation;
   final Color? titleColor;
+  Decoration? decoration;
   Color? color;
   Widget? child;
   CenterTextButtonWidget({
@@ -29,6 +30,7 @@ class CenterTextButtonWidget extends StatelessWidget {
     this.color,
     this.titleColor,
     this.child,
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -49,15 +51,16 @@ class CenterTextButtonWidget extends StatelessWidget {
           child: Container(
             height: height ?? 54,
             width: width ?? screenSize.width * 0.92,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: color ?? ColorUtils.darkChatBubbleColor,
-              gradient: LinearGradient(
-                colors: gradientColor ?? ColorUtils.darkRedGradient,
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
+            decoration: decoration ??
+                BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: color ?? ColorUtils.darkChatBubbleColor,
+                  gradient: LinearGradient(
+                    colors: gradientColor ?? ColorUtils.darkRedGradient,
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
             child: Center(
               child: child ??
                   Text(

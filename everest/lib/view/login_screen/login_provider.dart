@@ -4,8 +4,10 @@ import 'package:everest/apis/api.dart';
 import 'package:everest/apis/api_manager.dart';
 import 'package:everest/apis/api_urls.dart';
 import 'package:everest/apis/models/login_model.dart';
+import 'package:everest/widgets/common_toast.dart';
 import 'package:everest/widgets/shared_prefs.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginProvider extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -71,6 +73,8 @@ class LoginProvider extends ChangeNotifier {
 
         notifyListeners();
       } else {
+        FlutterToastWidget.show("Login failed. Please check your username and password.", "");
+        debugPrint("🦷🦷🦷🦷🦷");
         isLoading = false;
       }
     } catch (e) {

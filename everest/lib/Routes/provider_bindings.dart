@@ -1,4 +1,5 @@
 import 'package:everest/view/barcode_screen/barcode_provider.dart';
+import 'package:everest/view/checkout_screen/checkout_provider.dart';
 import 'package:everest/view/forget_password_screen/forget_pwd_provider.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/view/login_screen/login_provider.dart';
@@ -15,5 +16,6 @@ class ProviderBindings {
     ChangeNotifierProvider(create: (_) => HomeProvider()),
     ChangeNotifierProvider(create: (_) => BarcodeProvider()),
     ChangeNotifierProvider(create: (_) => MyAccountProvider()),
+    ChangeNotifierProvider(create: (_) => CheckOutProvider()),
   ];
 }

@@ -142,6 +142,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                         productName: entry.key.itemName ?? '',
                         quantity: entry.value,
                         price: entry.key.salePrice.toString(),
+                        itemId: entry.key.itemId ?? 0,
                       );
                     }).toList(),
                   ),

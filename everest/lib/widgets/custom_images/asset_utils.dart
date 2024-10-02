@@ -15,3 +15,19 @@ Widget assetPngUtils({
     fit: fit,
   );
 }
+
+Widget networkPngUtils({
+  required String networkImage,
+  double? height,
+  double? width,
+  Color? color,
+  BoxFit fit = BoxFit.contain,
+}) {
+  return Image.network(
+    networkImage,
+    height: height ?? 20,
+    width: width ?? 20,
+    color: color,
+    fit: fit,
+  );
+}

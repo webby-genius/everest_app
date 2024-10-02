@@ -12,6 +12,13 @@ import 'package:flutter/widgets.dart';
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
 
+  // var product;
+  int _quantity = 0;
+  int get quantity => _quantity;
+  set quantity(int value) {
+    _quantity = value;
+  }
+
   int _selectCategory = 1;
 
   List<CategoryListResponse> _categories = [];
