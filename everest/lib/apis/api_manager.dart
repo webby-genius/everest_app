@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:everest/apis/api.dart';
 import 'package:everest/apis/exception/no_internet_exception.dart';
 import 'package:everest/apis/types/api_exception.dart';
-import 'package:everest/apis/types/authorization_exception.dart';
 import 'package:everest/apis/types/general_api_exception.dart';
 import 'package:everest/apis/types/page_not_found_exception.dart';
 import 'package:everest/apis/types/server_exception.dart';
+import 'package:everest/utils/colors.dart';
+import 'package:everest/view/login_screen/login_screen.dart';
 import 'package:everest/widgets/shared_prefs.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +34,7 @@ enum APIResponseStatus {
 class APIManager {
   /// base function of APIs.
   static Future<APIResponse> callAPI({
-    BuildContext? context,
+    required BuildContext context,
     required String url,
     required APIMethodType type,
     APIBodyType? apiBodyType,
@@ -104,7 +106,7 @@ class APIManager {
             body: bodyToSend,
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 30), onTimeout: () {
+              .timeout(const Duration(seconds: 120), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });
@@ -118,7 +120,7 @@ class APIManager {
             Uri.parse(url).replace(queryParameters: body ?? {}),
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 30), onTimeout: () {
+              .timeout(const Duration(seconds: 120), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });
@@ -130,7 +132,7 @@ class APIManager {
             body: apiBody,
             headers: appHeader,
           )
-              .timeout(const Duration(seconds: 30), onTimeout: () {
+              .timeout(const Duration(seconds: 120), onTimeout: () {
             Map<String, dynamic> body = {"status": 0, "statuscode": 408, "msg": "timeout"};
             return http.Response(jsonEncode(body), 408);
           });
@@ -159,9 +161,10 @@ class APIManager {
         } else if (apiResponse.statusCode == 408) {
           apiResponseStatus = APIResponseStatus.TIMEOUT;
           showDialog(
-            context: context!,
+            context: context,
             builder: (context) {
               return AlertDialog(
+                backgroundColor: ColorUtils.whiteColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 title: Text("TIME OUT"),
                 content: Text("Please try again", style: TextStyle(fontSize: 14, color: Colors.black)),
@@ -228,8 +231,15 @@ class APIManager {
             return APIResponse(success: false, statuscode: apiResponseStatus, response: null);
 
           case APIResponseStatus.AUTHORIZATION:
-            AuthorizationException().showToast();
+            // AuthorizationException().showToast();
+            Fluttertoast.showToast(msg: "Authorization has been denied for this request.");
             debugPrint("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶");
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(),
+                ),
+                (route) => false);
             return APIResponse(success: false, statuscode: apiResponseStatus, response: null);
           default:
 
@@ -246,7 +256,7 @@ class APIManager {
     } else {
       debugPrint('No Internet!');
       NoInternetExceptions().showNoNetworkWidget(
-          context: context!,
+          context: context,
           onCancelTap: () {
             Navigator.pop(context);
           },

@@ -10,59 +10,90 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:provider/provider.dart';
 
-// Order Item Model
-class OrderItemModel {
-  String productName;
-  int quantity;
-  int itemId;
-  String price;
-
-  OrderItemModel({
-    required this.productName,
-    required this.quantity,
-    required this.itemId,
-    required this.price,
-  });
-
-  // Helper method to extract price as double
-  double get priceValue {
-    return double.tryParse(price.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0;
-  }
-
-  double get totalPrice => priceValue * quantity;
-}
-
-// Main Order Summary Screen
 class OrderSummaryScreen extends StatefulWidget {
+  final Map<ProductItemResponse, int> basket;
   bool isDrawerScreen;
-  ProductItemResponse? productItemResponse;
   AdvancedDrawerController? advancedDrawerController;
-  final List<OrderItemModel> orderItems;
 
   OrderSummaryScreen({
-    Key? key,
-    required this.orderItems,
+    required this.basket,
     this.isDrawerScreen = false,
     this.advancedDrawerController,
-    this.productItemResponse,
-  }) : super(key: key);
+  });
 
   @override
   State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
 }
 
 class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
+  double subtotal = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    calculateSubtotal(); // Initial subtotal calculation
+  }
+
+  void calculateSubtotal() {
+    subtotal = 0.0; // Reset subtotal
+    for (var entry in widget.basket.entries) {
+      final product = entry.key;
+      final quantity = entry.value;
+      final itemPrice = product.salePrice ?? 0.0;
+      subtotal += itemPrice * quantity; // Calculate subtotal
+    }
+    setState(() {}); // Trigger rebuild to update UI
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, CheckOutProvider provider, _) {
+    // Ensure that the basket is not empty before building the ListView
+    if (widget.basket.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Your Order', style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
+          backgroundColor: Color(0xFF2B3990),
+          leading: widget.isDrawerScreen
+              ? TextButton(
+                  onPressed: () {
+                    widget.advancedDrawerController?.showDrawer();
+                  },
+                  child: ValueListenableBuilder<AdvancedDrawerValue>(
+                      valueListenable: widget.advancedDrawerController!,
+                      builder: (context, value, _) {
+                        return Icon(value.visible ? Icons.clear : Icons.menu,
+                            key: ValueKey<bool>(value.visible), color: Colors.white, size: 30);
+                      }),
+                )
+              : IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(Icons.arrow_back_ios, color: ColorUtils.whiteColor),
+                ),
+        ),
+        body: Center(child: Text("Your basket is empty.")),
+      );
+    }
+
+    double total = 0.0;
+
+    // Calculate subtotal for each item in the basket
+    // for (var entry in widget.basket.entries) {
+    //   final product = entry.key;
+    //   final quantity = entry.value;
+    //   final itemPrice = product.salePrice ?? 0.0; // Assuming price is a property in ProductItemResponse
+    //   subtotal += itemPrice * quantity; // Add to subtotal
+    // }
+
+    total = subtotal; // If there are no additional charges, total is equal to subtotal
+
+    return Consumer2(builder: (context, CheckOutProvider provider, HomeProvider homeProvider, _) {
       return CircularProgressIndicatorWidget(
         visible: provider.isLoading,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(
-              'Your Order',
-              style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor),
-            ),
+            title: Text('Your Order', style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
             backgroundColor: Color(0xFF2B3990),
             leading: widget.isDrawerScreen
                 ? TextButton(
@@ -72,12 +103,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     child: ValueListenableBuilder<AdvancedDrawerValue>(
                         valueListenable: widget.advancedDrawerController!,
                         builder: (context, value, _) {
-                          return Icon(
-                            value.visible ? Icons.clear : Icons.menu,
-                            key: ValueKey<bool>(value.visible),
-                            color: Colors.white,
-                            size: 30,
-                          );
+                          return Icon(value.visible ? Icons.clear : Icons.menu,
+                              key: ValueKey<bool>(value.visible), color: Colors.white, size: 30);
                         }),
                   )
                 : IconButton(
@@ -87,134 +114,317 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     icon: Icon(Icons.arrow_back_ios, color: ColorUtils.whiteColor),
                   ),
           ),
-          body: OrderSummary(orderItems: widget.orderItems),
           bottomNavigationBar: Container(
             height: 150,
             child: BottomButtons(
               continueShoppingOnTap: () {
-                // Navigator.pushAndRemoveUntil(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => DashBoardScreen(),
-                //     ),
-                //     (route) => false);
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DashBoardScreen(),
+                    ),
+                    (route) => false);
               },
               proceedToOrderOnTap: () {},
               saveOrderOnTap: () {
-                provider.checkOutSaveApiResponse(context: context, orderItems: widget.orderItems);
+                // Prepare the order items for the API call
+                List<Map<String, dynamic>> orderItems = widget.basket.entries.map((entry) {
+                  final product = entry.key;
+                  final quantity = entry.value;
+                  return {
+                    'itemId': product.itemId, // Assuming 'id' is the property that contains the item ID
+                    'quantity': quantity,
+                  };
+                }).toList();
+                provider.checkOutSaveApiResponse(
+                  context: context,
+                  orderItems: orderItems,
+                );
               },
             ),
           ),
-        ),
-      );
-    });
-  }
-}
-
-// Order Summary Widget
-class OrderSummary extends StatelessWidget {
-  final List<OrderItemModel> orderItems;
-
-  OrderSummary({required this.orderItems});
-
-  @override
-  Widget build(BuildContext context) {
-    double subtotal = orderItems.fold(
-      0,
-      (sum, item) => sum + item.totalPrice,
-    );
-
-    double total = subtotal;
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("PRODUCT", style: size15(fw: FW.bold)),
-                Text("SUBTOTAL", style: size15(fw: FW.bold)),
-              ],
-            ),
-            Divider(color: ColorUtils.blackColor40),
-            for (var item in orderItems)
-              OrderItem(
-                productName: item.productName,
-                quantity: item.quantity,
-                totalPrice: item.totalPrice,
-              ),
-            Divider(color: ColorUtils.blackColor40),
-            SizedBox(height: 8),
-            SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
-            SizedBox(height: 8),
-            Divider(color: ColorUtils.blackColor40),
-            SizedBox(height: 8),
-            SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
-            SizedBox(height: 8),
-            Divider(color: ColorUtils.blackColor40),
-            DeliveryOptions(),
-            // BottomButtons(), Uncomment this if needed
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Order Item Widget
-class OrderItem extends StatelessWidget {
-  final String productName;
-  final int quantity;
-  final double totalPrice;
-
-  OrderItem({
-    required this.productName,
-    required this.quantity,
-    required this.totalPrice,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(builder: (context, HomeProvider provider, _) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            productName,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text("Qty: $quantity"),
-              Text('£${totalPrice.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold)),
-              Row(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Column(
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.remove, color: quantity > 0 ? Colors.red : Colors.grey),
-                    onPressed: quantity > 0 ? () => provider.removeFromBasket(provider.product) : null,
+                  ListView.builder(
+                    itemCount: widget.basket.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final product = widget.basket.keys.elementAt(index);
+                      final quantity = widget.basket[product] ?? 0;
+                      final itemPrice = product.salePrice ?? 0.0;
+                      final itemTotal = itemPrice * quantity; // Calculate total for the item
+
+                      // Ensure that the quantity is non-negative before building the ListTile
+                      if (quantity <= 0) {
+                        return Container(); // Skip this item if the quantity is 0
+                      }
+
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          product.itemName ?? '',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Row(
+                          children: [
+                            Text("Qty: $quantity"),
+                            SizedBox(width: 5),
+                            Text("|"),
+                            SizedBox(width: 5),
+                            Text(
+                              'Total: £${itemTotal.toStringAsFixed(2)}',
+                            ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  if (quantity > 0) {
+                                    // widget.basket[product] = quantity - 1;
+                                    // if (widget.basket[product] == 0) {
+                                    //   widget.basket.remove(product); // Remove item if quantity is 0
+                                    // }
+                                    homeProvider.removeFromBasket(product);
+                                    calculateSubtotal(); // Recalculate subtotal on change
+                                    (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                                  }
+                                });
+                              },
+                            ),
+                            Text(quantity.toString()),
+                            IconButton(
+                              icon: Icon(Icons.add, color: Colors.green),
+                              onPressed: () {
+                                setState(() {
+                                  // widget.basket[product] = quantity + 1;
+                                  homeProvider.addToBasket(product);
+                                  calculateSubtotal(); // Recalculate subtotal on change
+                                  (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  Text('$quantity'),
-                  Padding(
-                    padding: const EdgeInsets.all(7.0),
-                    child: GestureDetector(
-                      child: Icon(Icons.add, color: Colors.green),
-                      onTap: () => provider.addToBasket(provider.product),
-                    ),
-                  ),
+                  Divider(color: ColorUtils.blackColor40),
+                  SizedBox(height: 8),
+                  SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
+                  SizedBox(height: 8),
+                  Divider(color: ColorUtils.blackColor40),
+                  SizedBox(height: 8),
+                  SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
+                  SizedBox(height: 8),
+                  Divider(color: ColorUtils.blackColor40),
+                  DeliveryOptions(),
                 ],
-              )
-            ],
+              ),
+            ),
           ),
-          SizedBox(height: 8),
-        ],
+        ),
       );
     });
   }
 }
+
+// // Order Item Model
+// class OrderItemModel {
+//   String productName;
+//   int quantity;
+//   int itemId;
+//   String price;
+
+//   OrderItemModel({required this.productName, required this.quantity, required this.itemId, required this.price});
+
+//   // Helper method to extract price as double
+//   double get priceValue {
+//     return double.tryParse(price.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0;
+//   }
+
+//   double get totalPrice => priceValue * quantity;
+// }
+
+// // Main Order Summary Screen
+// class OrderSummaryScreen extends StatefulWidget {
+//   bool isDrawerScreen;
+//   ProductItemResponse? productItemResponse;
+//   AdvancedDrawerController? advancedDrawerController;
+//   final List<OrderItemModel> orderItems;
+
+//   OrderSummaryScreen(
+//       {Key? key, required this.orderItems, this.isDrawerScreen = false, this.advancedDrawerController, this.productItemResponse})
+//       : super(key: key);
+
+//   @override
+//   State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+// }
+
+// class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer(builder: (context, CheckOutProvider provider, _) {
+//       return CircularProgressIndicatorWidget(
+//         visible: provider.isLoading,
+//         child: Scaffold(
+//           appBar: AppBar(
+//             title: Text('Your Order', style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
+//             backgroundColor: Color(0xFF2B3990),
+//             leading: widget.isDrawerScreen
+//                 ? TextButton(
+//                     onPressed: () {
+//                       widget.advancedDrawerController?.showDrawer();
+//                     },
+//                     child: ValueListenableBuilder<AdvancedDrawerValue>(
+//                         valueListenable: widget.advancedDrawerController!,
+//                         builder: (context, value, _) {
+//                           return Icon(value.visible ? Icons.clear : Icons.menu,
+//                               key: ValueKey<bool>(value.visible), color: Colors.white, size: 30);
+//                         }),
+//                   )
+//                 : IconButton(
+//                     onPressed: () {
+//                       Navigator.pop(context);
+//                     },
+//                     icon: Icon(Icons.arrow_back_ios, color: ColorUtils.whiteColor),
+//                   ),
+//           ),
+//           body: OrderSummary(orderItems: widget.orderItems),
+//           bottomNavigationBar: Container(
+//             height: 150,
+//             child: BottomButtons(
+//               continueShoppingOnTap: () {},
+//               proceedToOrderOnTap: () {},
+//               saveOrderOnTap: () {
+//                 provider.checkOutSaveApiResponse(context: context, orderItems: widget.orderItems);
+//               },
+//             ),
+//           ),
+//         ),
+//       );
+//     });
+//   }
+// }
+
+// // Order Summary Widget
+// class OrderSummary extends StatelessWidget {
+//   final List<OrderItemModel> orderItems;
+
+//   OrderSummary({required this.orderItems});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     double subtotal = orderItems.fold(
+//       0,
+//       (sum, item) => sum + item.totalPrice,
+//     );
+
+//     double total = subtotal;
+
+//     return SingleChildScrollView(
+//       child: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text("PRODUCT", style: size15(fw: FW.bold)),
+//                 Text("SUBTOTAL", style: size15(fw: FW.bold)),
+//               ],
+//             ),
+//             Divider(color: ColorUtils.blackColor40),
+//             for (var item in orderItems)
+//               OrderItem(
+//                 productName: item.productName,
+//                 quantity: item.quantity,
+//                 totalPrice: item.totalPrice,
+//                 item: item,
+//                 onAdd: () => _addItem(context, item),
+//                 onRemove: () => _removeItem(context, item),
+//               ),
+//             Divider(color: ColorUtils.blackColor40),
+//             SizedBox(height: 8),
+//             SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
+//             SizedBox(height: 8),
+//             Divider(color: ColorUtils.blackColor40),
+//             SizedBox(height: 8),
+//             SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
+//             SizedBox(height: 8),
+//             Divider(color: ColorUtils.blackColor40),
+//             DeliveryOptions(),
+//             // BottomButtons(), Uncomment this if needed
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// // Order Item Widget
+// class OrderItem extends StatelessWidget {
+//   final String productName;
+//   final int quantity;
+//   final double totalPrice;
+//   final OrderItemModel item;
+//   final VoidCallback onAdd;
+//   final VoidCallback onRemove;
+
+//   OrderItem({
+//     required this.productName,
+//     required this.quantity,
+//     required this.totalPrice,
+//     required this.item,
+//     required this.onAdd,
+//     required this.onRemove,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer(builder: (context, HomeProvider provider, _) {
+//       return Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             productName,
+//             style: TextStyle(fontWeight: FontWeight.bold),
+//           ),
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.start,
+//             children: [
+//               Text("Qty: $quantity"),
+//               Text('£${totalPrice.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold)),
+//               Row(
+//                 children: [
+//                   IconButton(
+//                     icon: Icon(Icons.remove, color: Colors.red),
+//                     onPressed: quantity > 0 ? onRemove : null,
+//                   ),
+//                   Text('$quantity'),
+//                   IconButton(
+//                     icon: Icon(Icons.add, color: Colors.green),
+//                     onPressed: onAdd,
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 8),
+//         ],
+//       );
+//     });
+//   }
+// }
 
 // Summary Row Widget
 class SummaryRow extends StatelessWidget {
@@ -264,7 +474,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
           RadioListTile(
             value: "1",
             title: Text('CLICK & COLLECT', style: size16(fw: FW.medium)),
-            tileColor: ColorUtils.blackColor20,
+            tileColor: ColorUtils.blackColor10,
             groupValue: provider.selectedOption,
             activeColor: ColorUtils.darkChatBubbleColor,
             onChanged: (value) {
@@ -279,7 +489,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
             title: Text('DELIVERY ORDER', style: size16(fw: FW.medium)),
             groupValue: provider.selectedOption,
             activeColor: ColorUtils.darkChatBubbleColor,
-            tileColor: ColorUtils.blackColor20,
+            tileColor: ColorUtils.blackColor10,
             onChanged: (value) {
               setState(() {
                 provider.selectedOption = value!;
@@ -322,10 +532,7 @@ class _BottomButtonsState extends State<BottomButtons> {
                   margin: EdgeInsets.only(left: 5),
                   color: ColorUtils.darkChatBubbleColor,
                   child: Center(
-                    child: Text(
-                      'CONTINUE SHOPPING',
-                      style: size15(fw: FW.bold, fontColor: ColorUtils.whiteColor),
-                    ),
+                    child: Text('CONTINUE SHOPPING', style: size15(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
                   ),
                 ),
               ),
@@ -339,10 +546,7 @@ class _BottomButtonsState extends State<BottomButtons> {
                   margin: EdgeInsets.only(right: 5),
                   color: ColorUtils.darkChatBubbleColor,
                   child: Center(
-                    child: Text(
-                      'SAVE ORDER',
-                      style: size15(fw: FW.bold, fontColor: ColorUtils.whiteColor),
-                    ),
+                    child: Text('SAVE ORDER', style: size15(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
                   ),
                 ),
               ),
@@ -357,10 +561,7 @@ class _BottomButtonsState extends State<BottomButtons> {
             width: double.infinity,
             color: ColorUtils.darkChatBubbleColor,
             child: Center(
-              child: Text(
-                'PROCEED TO ORDER',
-                style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor),
-              ),
+              child: Text('PROCEED TO ORDER', style: size20(fw: FW.bold, fontColor: ColorUtils.whiteColor)),
             ),
           ),
         ),

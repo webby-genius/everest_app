@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:everest/apis/api.dart';
 import 'package:everest/apis/api_manager.dart';
 import 'package:everest/apis/api_urls.dart';
 import 'package:everest/apis/models/checkout_save_model.dart';
-import 'package:everest/view/checkout_screen/check_out_screen.dart';
 import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -48,30 +46,30 @@ class CheckOutProvider extends ChangeNotifier {
   }
 
   CheckOutSaveResponse checkOutSaveResponse = CheckOutSaveResponse();
-  List<SaveOrderItem> saveOrderItems = [];
+  // List<SaveOrderItem> saveOrderItems = [];
   Future checkOutSaveApiResponse({
     required BuildContext context,
-    required List<OrderItemModel> orderItems,
+    required List<Map<String, dynamic>> orderItems,
   }) async {
-    saveOrderItems.clear();
-    List<SaveOrderItem> convertOrderItemsToSaveOrderItems(List<OrderItemModel> orderItems) {
-      return orderItems
-          .map((item) => SaveOrderItem(
-                itemId: item.itemId,
-                quantity: item.quantity,
-              ))
-          .toList();
-    }
+    // saveOrderItems.clear();
+    // List<SaveOrderItem> convertOrderItemsToSaveOrderItems(List<OrderItemModel> orderItems) {
+    //   return orderItems
+    //       .map((item) => SaveOrderItem(
+    //             itemId: item.itemId,
+    //             quantity: item.quantity,
+    //           ))
+    //       .toList();
+    // }
 
-    saveOrderItems = convertOrderItemsToSaveOrderItems(orderItems);
-    debugPrint("saveOrderItems ${saveOrderItems.length}---->>>>> ${saveOrderItems.first.itemId}");
+    // saveOrderItems = convertOrderItemsToSaveOrderItems(orderItems);
+    // debugPrint("saveOrderItems ${saveOrderItems.length}---->>>>> ${saveOrderItems.first.itemId}");
 
     isLoading = true;
     notifyListeners();
     Map<String, dynamic> bodyData = {
       "OrderDateTime": formatCurrentDate(), //"03 September 2024",
       "OrderTypeID": selectedOption,
-      "Items": saveOrderItems,
+      "Items": orderItems,
     };
     debugPrint("bodyData --->>> $bodyData");
     try {

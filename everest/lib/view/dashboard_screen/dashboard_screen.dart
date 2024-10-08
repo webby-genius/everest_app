@@ -135,16 +135,18 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                   KeepAliveWrapper(child: homeScreen),
                   MyAccountScreen(advancedDrawerController: advancedDrawerController),
                   OrderSummaryScreen(
-                    advancedDrawerController: advancedDrawerController,
                     isDrawerScreen: true,
-                    orderItems: provider.basket.entries.map((entry) {
-                      return OrderItemModel(
-                        productName: entry.key.itemName ?? '',
-                        quantity: entry.value,
-                        price: entry.key.salePrice.toString(),
-                        itemId: entry.key.itemId ?? 0,
-                      );
-                    }).toList(),
+                    advancedDrawerController: advancedDrawerController,
+                    basket: provider.basket,
+                    // isDrawerScreen: true,
+                    // orderItems: provider.basket.entries.map((entry) {
+                    //   return OrderItemModel(
+                    //     productName: entry.key.itemName ?? '',
+                    //     quantity: entry.value,
+                    //     price: entry.key.salePrice.toString(),
+                    //     itemId: entry.key.itemId ?? 0,
+                    //   );
+                    // }).toList(),
                   ),
                   PandingOrderScreen(advancedDrawerController: advancedDrawerController),
                 ],

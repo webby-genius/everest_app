@@ -19,7 +19,7 @@ class BarcodeScanScreen extends StatefulWidget {
 
 class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
   String? barcodeResult;
-  Timer? debounceTimer;
+  bool isScanningActive = true; // Control scanning state
 
   @override
   void initState() {
@@ -28,60 +28,26 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
     super.initState();
   }
 
-  String? lastScannedBarcode;
-  bool isApiCallInProgress = false;
-
-  void handleBarcodeDetection(String barcode) {
-    // If the barcode is the same or an API call is in progress, return early
-    final barcodeProvider = Provider.of<BarcodeProvider>(context, listen: false);
-    if (barcode == lastScannedBarcode || isApiCallInProgress) {
-      return;
-    }
-
-    // Set the last scanned barcode
-    lastScannedBarcode = barcode;
-    isApiCallInProgress = true;
-
-    // Start a timer to reset the API call state after a delay
-    debounceTimer?.cancel(); // Cancel any existing timer
-    debounceTimer = Timer(Duration(seconds: 2), () {
-      lastScannedBarcode = null; // Reset after timeout
-      isApiCallInProgress = false; // Mark API call as complete
-    });
-
-    // Make your API call
-    barcodeProvider
-        .getItemByBarcodeApiResponse(
-      context: context,
-      barcode: barcode,
-    )
-        .then((_) {
-      // Reset the API call state if successful
-      isApiCallInProgress = false;
-    }).catchError((error) {
-      // Handle error and reset the state
-      print('API call error: $error');
-      isApiCallInProgress = false;
-    });
-  }
-
   // void handleBarcodeDetection(String barcode) {
+  //   if (!isScanningActive) return; // Exit if scanning is not active
+
   //   final barcodeProvider = Provider.of<BarcodeProvider>(context, listen: false);
-  //   if (barcode == lastScannedBarcode || isApiCallInProgress) {
-  //     return; // Prevent duplicates and ongoing calls
-  //   }
 
-  //   // Update state
-  //   lastScannedBarcode = barcode;
-  //   isApiCallInProgress = true;
+  //   // Cancel any existing timer
+  //   debounceTimer?.cancel();
 
-  //   // Make your API call
-  //   barcodeProvider.getItemByBarcodeApiResponse(context: context, barcode: barcode).then((_) {
-  //     // Reset the state after the API call completes
-  //     isApiCallInProgress = false;
-  //   }).catchError((error) {
-  //     // Handle error if needed
-  //     isApiCallInProgress = false;
+  //   // Start a new timer
+  //   debounceTimer = Timer(Duration(milliseconds: 1000), () {
+  //     // Make the API call after the delay
+  //     barcodeProvider.getItemByBarcodeApiResponse(context: context, barcode: barcode).then((_) {
+  //       // Stop scanning after a valid barcode is received
+  //       setState(() {
+  //         isScanningActive = false;
+  //       });
+  //     }).catchError((error) {
+  //       // Handle error if needed
+  //       print('API call error: $error');
+  //     });
   //   });
   // }
 
@@ -128,7 +94,22 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                       setState(() {
                         barcodeResult = barcode.barcodes[0].rawValue;
                         if (barcodeResult != null) {
-                          handleBarcodeDetection(barcodeResult.toString());
+                          debugPrint("🥶🥶🥶🥶🥶 ->> $isScanningActive");
+                          if (isScanningActive) {
+                            isScanningActive = false;
+                            debugPrint("👛 ->> $isScanningActive");
+                            barcodeProvider.getItemByBarcodeApiResponse(
+                              context: context,
+                              barcode: barcodeResult.toString(),
+                            );
+                            Future.delayed(
+                              Duration(seconds: 4),
+                              () {
+                                isScanningActive = true;
+                                debugPrint("👛👛👛👛👛👛 ->> $isScanningActive");
+                              },
+                            );
+                          }
                         }
                       });
                     },
@@ -136,14 +117,11 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              barcodeProvider.productsToShow.isEmpty
-                  ? Center(
-                      child: Text("Item not found"),
-                    )
-                  : Expanded(
-                      child: CircularProgressIndicatorWidget(
-                        visible: false, // barcodeProvider.isLoading,
-                        child: SingleChildScrollView(
+              Expanded(
+                child: CircularProgressIndicatorWidget(
+                  visible: barcodeProvider.isLoading,
+                  child: barcodeProvider.productsToShow.isNotEmpty
+                      ? SingleChildScrollView(
                           child: Column(
                             children: [
                               ListView.builder(
@@ -153,7 +131,7 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                                 physics: ClampingScrollPhysics(),
                                 itemBuilder: (context, index) {
                                   final product = barcodeProvider.productsToShow[index];
-                                  if (product.itemCode == barcodeProvider.scannedProduct?.itemCode) {}
+                                  // if (product.itemCode == barcodeProvider.scannedProduct?.itemCode) {}
                                   final quantity = provider.basket[product] ?? 0;
                                   return Container(
                                     decoration: BoxDecoration(
@@ -224,9 +202,10 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                               )
                             ],
                           ),
-                        ),
-                      ),
-                    )
+                        )
+                      : SizedBox(),
+                ),
+              )
             ],
           ),
         );

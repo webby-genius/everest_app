@@ -39,9 +39,10 @@ class BarcodeProvider extends ChangeNotifier {
       notifyListeners();
     } else {
       isLoading = false;
-      notifyListeners();
-      // FlutterToastWidget.show("Item not found", "error");
+      FlutterToastWidget.show("Item not found", "error");
       productsToShow.clear();
+      scannedProduct = null;
+      notifyListeners();
       debugPrint("");
     }
     notifyListeners();
