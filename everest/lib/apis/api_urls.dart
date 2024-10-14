@@ -10,5 +10,7 @@ class ApiUrlPage {
   static String itemListUrl = "$baseUrl$pathUrl/GetItemList";
   static String getSingleItemByBarcodeUrl = "$baseUrl$pathUrl/GetSingleItemByBarcode";
   static String saveOrderCartUrl = "$baseUrl$pathUrl/UpdateCart";
-  static String addNewSaleUrl = "$baseUrl$pathUrl/AddNewSale";
+  static String proceedToOrderUrl = "$baseUrl$pathUrl/AddNewSale";
+  static String getShoppingCartItemListUrl = "$baseUrl$pathUrl/GetShoppingCartItemList";
+  static String getCustomerOrdersUrl = "$baseUrl$pathUrl/GetCustomerOrders";
 }

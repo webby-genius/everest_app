@@ -5,6 +5,7 @@ import 'package:everest/view/checkout_screen/check_out_screen.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/view/home_screen/promotion_screen.dart';
 import 'package:everest/widgets/LoadingWidget.dart';
+import 'package:everest/widgets/bounce_click_widget.dart';
 import 'package:everest/widgets/button/center_text_button_widget.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
 import 'package:everest/widgets/custom_safearea.dart';
@@ -343,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Expanded(
                       flex: 4,
-                      child: GestureDetector(
+                      child: BounceClickWidget(
                         onTap: () {
                           Navigator.push(
                             context,
