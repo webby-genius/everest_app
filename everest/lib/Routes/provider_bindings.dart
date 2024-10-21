@@ -1,5 +1,6 @@
 import 'package:everest/view/barcode_screen/barcode_provider.dart';
 import 'package:everest/view/checkout_screen/checkout_provider.dart';
+import 'package:everest/view/dashboard_screen/dashboard_provider.dart';
 import 'package:everest/view/forget_password_screen/forget_pwd_provider.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/view/login_screen/login_provider.dart';
@@ -11,6 +12,7 @@ import 'package:provider/single_child_widget.dart';
 
 class ProviderBindings {
   static List<SingleChildWidget> providers = [
+    ChangeNotifierProvider(create: (_) => DashBoardProvider()),
     ChangeNotifierProvider(create: (_) => SplashProvider()),
     ChangeNotifierProvider(create: (_) => LoginProvider()),
     ChangeNotifierProvider(create: (_) => ForgetPwdProvider()),

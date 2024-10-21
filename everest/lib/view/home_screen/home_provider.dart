@@ -4,10 +4,13 @@ import 'package:everest/apis/api.dart';
 import 'package:everest/apis/api_manager.dart';
 import 'package:everest/apis/api_urls.dart';
 import 'package:everest/apis/models/category_list_model.dart';
+import 'package:everest/apis/models/checkout_save_model.dart';
 import 'package:everest/apis/models/product_item_model.dart';
+import 'package:everest/view/checkout_screen/check_out_screen.dart';
 import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
@@ -29,6 +32,72 @@ class HomeProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   set isLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  String formatCurrentDate() {
+    final now = DateTime.now();
+    final formatter = DateFormat('dd MMMM yyyy');
+    return formatter.format(now);
+  }
+
+  CheckOutSaveResponse checkOutSaveResponse = CheckOutSaveResponse();
+  // List<SaveOrderItem> saveOrderItems = [];
+  Future checkOutSaveApiResponse({
+    required BuildContext context,
+    required List<Map<String, dynamic>> orderItems,
+  }) async {
+    isLoading = true;
+    notifyListeners();
+    Map<String, dynamic> bodyData = {
+      "OrderDateTime": formatCurrentDate(), //"03 September 2024",
+      "OrderTypeID": '1',
+      "Items": orderItems,
+    };
+    debugPrint("bodyData --->>> $bodyData");
+    try {
+      APIResponse response = await APIManager.callAPI(
+        context: context,
+        url: ApiUrlPage.saveOrderCartUrl,
+        type: APIMethodType.POST,
+        apiBodyType: APIBodyType.RAW,
+        body: bodyData,
+      );
+      if (response.success) {
+        checkOutSaveResponse = CheckOutSaveResponse.fromJson(response.response);
+        if (checkOutSaveResponse != null) {
+          debugPrint("!!!!!!!!!!!---------- SUCESS! ----------!!!!!!!!!!");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrderSummaryScreen(basket: basket),
+            ),
+          ).then((_) {
+            // When returning from the OrderSummaryScreen, ensure UI refresh
+            notifyListeners();
+          });
+          notifyListeners();
+        } else {
+          FlutterToastWidget.show("Somthing went wrong!", "error");
+        }
+        isLoading = false;
+        notifyListeners();
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderSummaryScreen(basket: basket),
+          ),
+        ).then((_) {
+          // When returning from the OrderSummaryScreen, ensure UI refresh
+          notifyListeners();
+        });
+        isLoading = false;
+      }
+    } catch (e) {
+      isLoading = false;
+      debugPrint("ERROR -->> $e");
+    }
     notifyListeners();
   }
 

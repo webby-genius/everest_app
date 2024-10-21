@@ -4,11 +4,13 @@ import 'package:everest/apis/api_urls.dart';
 import 'package:everest/apis/models/cart_item_list_model.dart';
 import 'package:everest/apis/models/checkout_save_model.dart';
 import 'package:everest/apis/models/proceed_order_model.dart';
+import 'package:everest/view/dashboard_screen/dashboard_provider.dart';
 import 'package:everest/view/dashboard_screen/dashboard_screen.dart';
 import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 // class SaveOrderItem {
 //   int ItemID;
@@ -83,7 +85,6 @@ class CheckOutProvider extends ChangeNotifier {
   Future checkOutSaveApiResponse({
     required BuildContext context,
     required List<Map<String, dynamic>> orderItems,
-    bool isHomeScreen = false,
   }) async {
     // saveOrderItems.clear();
     // List<SaveOrderItem> convertOrderItemsToSaveOrderItems(List<OrderItemModel> orderItems) {
@@ -118,15 +119,13 @@ class CheckOutProvider extends ChangeNotifier {
         checkOutSaveResponse = CheckOutSaveResponse.fromJson(response.response);
         if (checkOutSaveResponse != null) {
           debugPrint("!!!!!!!!!!!---------- SUCESS! ----------!!!!!!!!!!");
-          if (isHomeScreen) {}else{
-            FlutterToastWidget.show("Order save successfully!", "success");
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DashBoardScreen(),
-                ),
-                (route) => false);
-          }
+          FlutterToastWidget.show("Order save successfully!", "success");
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DashBoardScreen(),
+              ),
+              (route) => false);
           notifyListeners();
         } else {
           FlutterToastWidget.show("Somthing went wrong!", "error");
@@ -148,6 +147,7 @@ class CheckOutProvider extends ChangeNotifier {
   Future proceedToOrderApiResponse({
     required BuildContext context,
     required List<Map<String, dynamic>> orderItems,
+    bool isDrawerScreen = false,
   }) async {
     isLoading = true;
     notifyListeners();
@@ -171,7 +171,11 @@ class CheckOutProvider extends ChangeNotifier {
         if (proceedOrderResponse != null) {
           debugPrint("!!!!!!!!!!!---------- SUCESS! ----------!!!!!!!!!!");
           FlutterToastWidget.show(proceedOrderResponse.message, "success");
-          Navigator.pop(context);
+          if (isDrawerScreen) {
+            Provider.of<DashBoardProvider>(context, listen: false).setScreen(0);
+          } else {
+            Navigator.pop(context);
+          }
           notifyListeners();
         } else {
           FlutterToastWidget.show("Somthing went wrong!", "error");

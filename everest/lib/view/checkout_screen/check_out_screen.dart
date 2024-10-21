@@ -1,3 +1,4 @@
+import 'package:everest/apis/models/cart_item_list_model.dart';
 import 'package:everest/apis/models/product_item_model.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
@@ -9,6 +10,8 @@ import 'package:everest/widgets/bounce_click_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:provider/provider.dart';
+
+bool isMenuCheckOutScreen = false;
 
 class OrderSummaryScreen extends StatefulWidget {
   final Map<ProductItemResponse, int> basket;
@@ -40,18 +43,27 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   void calculateSubtotal() {
     subtotal = 0.0; // Reset subtotal
-    for (var entry in widget.basket.entries) {
-      final product = entry.key;
-      final quantity = entry.value;
-      final itemPrice = product.salePrice ?? 0.0;
-      subtotal += itemPrice * quantity; // Calculate subtotal
+    if (widget.basket.isNotEmpty) {
+      for (var entry in widget.basket.entries) {
+        final product = entry.key;
+        final quantity = entry.value;
+        final itemPrice = product.salePrice ?? 0.0;
+        subtotal += itemPrice * quantity; // Calculate subtotal
+      }
+      setState(() {}); // Trigger rebuild to update UI
     }
-    setState(() {}); // Trigger rebuild to update UI
   }
 
   @override
   Widget build(BuildContext context) {
     // Ensure that the basket is not empty before building the ListView
+    if (isMenuCheckOutScreen) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        Provider.of<CheckOutProvider>(context, listen: false).getShoppingCartItemListUrlResponse(context: context);
+        calculateSubtotal();
+      });
+      isMenuCheckOutScreen = false;
+    }
     if (widget.basket.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -129,7 +141,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     'quantity': quantity,
                   };
                 }).toList();
-                provider.proceedToOrderApiResponse(context: context, orderItems: orderItems);
+                provider.proceedToOrderApiResponse(
+                  context: context,
+                  orderItems: orderItems,
+                  isDrawerScreen: widget.isDrawerScreen,
+                );
               },
               saveOrderOnTap: () {
                 // Prepare the order items for the API call
@@ -154,83 +170,145 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               child: Column(
                 children: [
                   ListView.builder(
-                    itemCount: widget.basket.length,
+                    itemCount: provider.cartItemsListResponse.items?.length,
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      final product = widget.basket.keys.elementAt(index);
-                      final quantity = widget.basket[product] ?? 0;
-                      final itemPrice = product.salePrice ?? 0.0;
-                      final itemTotal = itemPrice * quantity; // Calculate total for the item
-
-                      // Ensure that the quantity is non-negative before building the ListTile
-                      if (quantity <= 0) {
-                        return Container(); // Skip this item if the quantity is 0
-                      }
-
+                      List<Item> cartItemList = provider.cartItemsListResponse.items ?? [];
+                      final quantity = cartItemList[index].quantity ?? 0;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
-                          product.itemName ?? '',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          cartItemList[index].itemName ?? '',
+                          style: size15(fw: FW.bold),
                         ),
                         subtitle: Row(
                           children: [
-                            Text("Qty: $quantity"),
+                            Text("Qty: ${cartItemList[index].quantity}"),
                             SizedBox(width: 5),
                             Text("|"),
                             SizedBox(width: 5),
                             Text(
-                              'Total: £${itemTotal.toStringAsFixed(2)}',
+                              'Total: £${cartItemList[index].totalPrice}',
                             ),
                           ],
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.remove, color: Colors.red),
-                              onPressed: () {
-                                setState(() {
-                                  if (quantity > 0) {
-                                    // widget.basket[product] = quantity - 1;
-                                    // if (widget.basket[product] == 0) {
-                                    //   widget.basket.remove(product); // Remove item if quantity is 0
-                                    // }
-                                    homeProvider.removeFromBasket(product);
-                                    calculateSubtotal(); // Recalculate subtotal on change
-                                    (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
-                                  }
-                                });
-                              },
-                            ),
-                            Text(quantity.toString()),
-                            IconButton(
-                              icon: Icon(Icons.add, color: Colors.green),
-                              onPressed: () {
-                                setState(() {
-                                  // widget.basket[product] = quantity + 1;
-                                  homeProvider.addToBasket(product);
-                                  calculateSubtotal(); // Recalculate subtotal on change
-                                  (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                        // trailing: Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   children: [
+                        //     IconButton(
+                        //       icon: Icon(Icons.remove, color: Colors.red),
+                        //       onPressed: () {
+                        //         setState(() {
+                        //           if (quantity > 0) {
+                        //             homeProvider.removeFromBasket(product);
+                        //             calculateSubtotal(); // Recalculate subtotal on change
+                        //             (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                        //           }
+                        //         });
+                        //       },
+                        //     ),
+                        //     Text(quantity.toString()),
+                        //     IconButton(
+                        //       icon: Icon(Icons.add, color: Colors.green),
+                        //       onPressed: () {
+                        //         setState(() {
+                        //           homeProvider.addToBasket(product);
+                        //           calculateSubtotal(); // Recalculate subtotal on change
+                        //           (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                        //         });
+                        //       },
+                        //     ),
+                        //   ],
+                        // ),
                       );
                     },
                   ),
+
+                  // ListView.builder(
+                  //   itemCount: widget.basket.length,
+                  //   physics: NeverScrollableScrollPhysics(),
+                  //   shrinkWrap: true,
+                  //   itemBuilder: (context, index) {
+                  //     final product = widget.basket.keys.elementAt(index);
+                  //     final quantity = widget.basket[product] ?? 0;
+                  //     final itemPrice = product.salePrice ?? 0.0;
+                  //     final itemTotal = itemPrice * quantity; // Calculate total for the item
+
+                  //     // Ensure that the quantity is non-negative before building the ListTile
+                  //     if (quantity <= 0) {
+                  //       return Container(); // Skip this item if the quantity is 0
+                  //     }
+
+                  //     return ListTile(
+                  //       contentPadding: EdgeInsets.zero,
+                  //       title: Text(
+                  //         product.itemName ?? '',
+                  //         style: size15(fw: FW.bold),
+                  //       ),
+                  //       subtitle: Row(
+                  //         children: [
+                  //           Text("Qty: $quantity"),
+                  //           SizedBox(width: 5),
+                  //           Text("|"),
+                  //           SizedBox(width: 5),
+                  //           Text(
+                  //             'Total: £${itemTotal.toStringAsFixed(2)}',
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       trailing: Row(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           IconButton(
+                  //             icon: Icon(Icons.remove, color: Colors.red),
+                  //             onPressed: () {
+                  //               setState(() {
+                  //                 if (quantity > 0) {
+                  //                   // widget.basket[product] = quantity - 1;
+                  //                   // if (widget.basket[product] == 0) {
+                  //                   //   widget.basket.remove(product); // Remove item if quantity is 0
+                  //                   // }
+                  //                   homeProvider.removeFromBasket(product);
+                  //                   calculateSubtotal(); // Recalculate subtotal on change
+                  //                   (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                  //                 }
+                  //               });
+                  //             },
+                  //           ),
+                  //           Text(quantity.toString()),
+                  //           IconButton(
+                  //             icon: Icon(Icons.add, color: Colors.green),
+                  //             onPressed: () {
+                  //               setState(() {
+                  //                 // widget.basket[product] = quantity + 1;
+                  //                 homeProvider.addToBasket(product);
+                  //                 calculateSubtotal(); // Recalculate subtotal on change
+                  //                 (context as Element).markNeedsBuild(); // Force rebuild to reflect changes
+                  //               });
+                  //             },
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                   Divider(color: ColorUtils.blackColor40),
-                  SizedBox(height: 8),
+                  SizedBox(height: 5),
                   SummaryRow(label: 'Subtotal', value: '£${provider.cartItemsListResponse.subTotal}'),
-                  // SummaryRow(label: 'Subtotal', value: '£${subtotal.toStringAsFixed(2)}'),
-                  SizedBox(height: 8),
+                  SizedBox(height: 5),
+                  // Divider(color: ColorUtils.blackColor40),
+                  SizedBox(height: 5),
+                  SummaryRow(label: 'VAT', value: '£${provider.cartItemsListResponse.vat}'),
+                  SizedBox(height: 5),
+                  // Divider(color: ColorUtils.blackColor40),
+                  SizedBox(height: 5),
+                  SummaryRow(label: 'Discount', value: '£${provider.cartItemsListResponse.totalDiscount}'),
+                  SizedBox(height: 5),
                   Divider(color: ColorUtils.blackColor40),
-                  SizedBox(height: 8),
+                  SizedBox(height: 5),
                   SummaryRow(label: 'Total', value: '£${provider.cartItemsListResponse.grandTotal}', isTotal: true),
-                  // SummaryRow(label: 'Total', value: '£${total.toStringAsFixed(2)}', isTotal: true),
-                  SizedBox(height: 8),
+                  SizedBox(height: 5),
                   Divider(color: ColorUtils.blackColor40),
                   DeliveryOptions(),
                 ],
@@ -294,6 +372,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
             tileColor: ColorUtils.blackColor10,
             groupValue: provider.selectedOption,
             activeColor: ColorUtils.darkChatBubbleColor,
+            dense: true,
             onChanged: (value) {
               setState(() {
                 provider.selectedOption = value!;
@@ -307,6 +386,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
             groupValue: provider.selectedOption,
             activeColor: ColorUtils.darkChatBubbleColor,
             tileColor: ColorUtils.blackColor10,
+            dense: true,
             onChanged: (value) {
               setState(() {
                 provider.selectedOption = value!;

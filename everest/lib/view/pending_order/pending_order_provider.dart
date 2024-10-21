@@ -23,11 +23,11 @@ class PendingProvider extends ChangeNotifier {
   PendingOrderResponse pendingOrderResponse = PendingOrderResponse();
   Future getCustomerOrdersApiResponse({required BuildContext context}) async {
     isLoading = true;
-    // Get the current date
+    // notifyListeners();
+
     DateTime currentDate = DateTime.now();
-    // Get the date one year ago
     DateTime oneYearAgo = currentDate.subtract(Duration(days: 365));
-    // Format the dates as MM/dd/yyyy
+
     String formattedStartDate =
         "${oneYearAgo.month.toString().padLeft(2, '0')}/${oneYearAgo.day.toString().padLeft(2, '0')}/${oneYearAgo.year}";
     String formattedEndDate =
@@ -53,22 +53,22 @@ class PendingProvider extends ChangeNotifier {
           pendingOrderList = pendingOrderResponse;
           if (pendingOrderList.isEmpty) {
             isShowNoData = true;
-            notifyListeners();
+            // notifyListeners();
           }
-          notifyListeners();
+          // notifyListeners();
         } else {
           FlutterToastWidget.show("No order found.", "error");
         }
       } else {
         // Handle error in response
         isLoading = false;
-        notifyListeners();
+        // notifyListeners();
       }
     } catch (e) {
       debugPrint("ERROR ---------> ${e}");
     } finally {
       isLoading = false;
-      notifyListeners();
+      // notifyListeners();
     }
   }
 

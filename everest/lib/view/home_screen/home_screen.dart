@@ -346,33 +346,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       flex: 4,
                       child: BounceClickWidget(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderSummaryScreen(
-                                basket: provider.basket, // Pass the basket directly
-                              ),
-                            ),
-                          ).then((_) {
-                            // When returning from the OrderSummaryScreen, ensure UI refresh
-                            setState(() {});
-                          });
+                          // Prepare the order items for the API call
+                          List<Map<String, dynamic>> orderItems = provider.basket.entries.map((entry) {
+                            final product = entry.key;
+                            final quantity = entry.value;
+                            return {
+                              'itemId': product.itemId, // Assuming 'id' is the property that contains the item ID
+                              'quantity': quantity,
+                            };
+                          }).toList();
+                          provider.checkOutSaveApiResponse(
+                            context: context,
+                            orderItems: orderItems,
+                          );
                           // Navigator.push(
                           //   context,
                           //   MaterialPageRoute(
                           //     builder: (context) => OrderSummaryScreen(
-                          //       orderItems: provider.basket.entries.map((entry) {
-                          //         // Create a copy of each item for the OrderSummaryScreen
-                          //         return OrderItemModel(
-                          //           productName: entry.key.itemName ?? '',
-                          //           quantity: entry.value,
-                          //           price: entry.key.salePrice.toString(),
-                          //           itemId: entry.key.itemId ?? 0,
-                          //         );
-                          //       }).toList(),
+                          //       basket: provider.basket, // Pass the basket directly
                           //     ),
                           //   ),
-                          // );
+                          // ).then((_) {
+                          //   // When returning from the OrderSummaryScreen, ensure UI refresh
+                          //   setState(() {});
+                          // });
                         },
                         child: Container(
                             color: ColorUtils.darkChatBubbleColor,
