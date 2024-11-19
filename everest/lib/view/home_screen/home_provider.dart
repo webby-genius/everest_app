@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
-  TextEditingController quantityController = TextEditingController();
+  // TextEditingController quantityController = TextEditingController();
 
   // var product;
   int _quantity = 0;

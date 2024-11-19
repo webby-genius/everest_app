@@ -235,79 +235,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       product: product,
                                                       provider: provider,
                                                     )
-                                                  // Row(
-                                                  //     children: [
-                                                  //       IconButton(
-                                                  //         icon: Icon(Icons.remove,
-                                                  //             color: provider.quantity > 0 ? Colors.red : Colors.grey),
-                                                  //         onPressed: provider.quantity > 0
-                                                  //             ? () => provider.removeFromBasket(product)
-                                                  //             : null,
-                                                  //       ),
-                                                  //       // Text('${provider.quantity}'),
-                                                  //       // Display quantity manually with TextField
-                                                  //       // Container(
-                                                  //       //   width: 40,
-                                                  //       //   child: TextField(
-                                                  //       //     controller: TextEditingController(text: '${provider.quantity}'),
-                                                  //       //     keyboardType: TextInputType.phone,
-                                                  //       //     showCursor: false,
-                                                  //       //     textAlign: TextAlign.center,
-                                                  //       //     decoration: InputDecoration(
-                                                  //       //       border: OutlineInputBorder(borderSide: BorderSide.none),
-                                                  //       //       contentPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                                  //       //     ),
-                                                  //       //     onChanged: (value) {
-                                                  //       //       // Ensure the value is a valid positive integer
-                                                  //       //       final newQuantity = int.tryParse(value);
-                                                  //       //       if (newQuantity != null && newQuantity > 0) {
-                                                  //       //         debugPrint("UPDATED QTY -->>> $newQuantity");
-                                                  //       //         // Method to update the quantity
-                                                  //       //         provider.setQuantity(product, newQuantity);
-                                                  //       //       }
-                                                  //       //     },
-                                                  //       //   ),
-                                                  //       // ),
-
-                                                  //       Container(
-                                                  //         width: 50,
-                                                  //         child: TextField(
-                                                  //           controller: provider.quantityController,
-                                                  //           keyboardType: TextInputType.number,
-                                                  //           textAlign: TextAlign.center,
-                                                  //           showCursor: true, // Show the cursor
-                                                  //           decoration: InputDecoration(
-                                                  //             border: InputBorder.none, // Remove border
-                                                  //             isDense: true, // Avoid extra space
-                                                  //           ),
-                                                  //           onChanged: (value) {
-                                                  //             // Ensure the value is a valid positive integer
-                                                  //             final newQuantity = int.tryParse(value);
-                                                  //             if (newQuantity != null && newQuantity > 0) {
-                                                  //               provider.setQuantity(product, newQuantity);
-                                                  //             } else if (value.isEmpty) {
-                                                  //               // Handle empty case (set to 0 or remove from basket)
-                                                  //               provider.setQuantity(product, 0);
-                                                  //             }
-                                                  //           },
-                                                  //           onSubmitted: (value) {
-                                                  //             // Optionally, handle when the user presses "done"
-                                                  //             final newQuantity = int.tryParse(value);
-                                                  //             if (newQuantity != null && newQuantity > 0) {
-                                                  //               provider.setQuantity(product, newQuantity);
-                                                  //             }
-                                                  //           },
-                                                  //         ),
-                                                  //       ),
-                                                  //       Padding(
-                                                  //         padding: const EdgeInsets.all(7.0),
-                                                  //         child: GestureDetector(
-                                                  //           child: Icon(Icons.add, color: Colors.green),
-                                                  //           onTap: () => provider.addToBasket(product),
-                                                  //         ),
-                                                  //       ),
-                                                  //     ],
-                                                  //   )
                                                   : CenterTextButtonWidget(
                                                       height: 30,
                                                       width: 200,
@@ -534,54 +461,65 @@ class _ProductQuantityWidgetState extends State<ProductQuantityWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context,HomeProvider provider,_) {
-        return Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
-              onPressed: provider.quantity > 0 ? () => provider.removeFromBasket(widget.product) : null,
-            ),
-            // Use the TextEditingController to manage the quantity input
-            Container(
-              width: 24,
-              child: TextField(
-                controller: _quantityController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                style: size13(),
-                showCursor: true, // Show the cursor
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.zero,
-                  border: InputBorder.none, // Remove border
-                  isDense: true, // Avoid extra space
-                ),
-                onChanged: (value) {
-                  // Ensure the value is a valid positive integer
-                  final newQuantity = int.tryParse(value);
-                  if (newQuantity != null && newQuantity > 0) {
-                    provider.setQuantity(widget.product, newQuantity);
-                  } else if (value.isEmpty) {
-                    // Handle empty case (set to 0 or remove from basket)
-                    provider.setQuantity(widget.product, 0);
+    return Consumer(builder: (context, HomeProvider provider, _) {
+      return Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
+            onPressed: provider.quantity > 0
+                ? () {
+                    // Update the TextEditingController after the quantity is updated
+                    provider.removeFromBasket(widget.product);
+                    setState(() {
+                      _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+                    });
                   }
-                },
-                onSubmitted: (value) {
-                  // Optionally, handle when the user presses "done"
-                  final newQuantity = int.tryParse(value);
-                  if (newQuantity != null && newQuantity > 0) {
-                    provider.setQuantity(widget.product, newQuantity);
-                  }
-                },
+                : null,
+          ),
+          // Use the TextEditingController to manage the quantity input
+          Container(
+            width: 24,
+            child: TextField(
+              controller: _quantityController,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: size13(),
+              showCursor: true, // Show the cursor
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.zero,
+                border: InputBorder.none, // Remove border
+                isDense: true, // Avoid extra space
               ),
+              onChanged: (value) {
+                // Ensure the value is a valid positive integer
+                final newQuantity = int.tryParse(value);
+                if (newQuantity != null && newQuantity > 0) {
+                  provider.setQuantity(widget.product, newQuantity);
+                } else if (value.isEmpty) {
+                  // Handle empty case (set to 0 or remove from basket)
+                  provider.setQuantity(widget.product, 0);
+                }
+              },
+              onSubmitted: (value) {
+                // Optionally, handle when the user presses "done"
+                final newQuantity = int.tryParse(value);
+                if (newQuantity != null && newQuantity > 0) {
+                  provider.setQuantity(widget.product, newQuantity);
+                }
+              },
             ),
-            IconButton(
+          ),
+          IconButton(
               icon: Icon(Icons.add, color: Colors.green),
-              onPressed: () => widget.provider.addToBasket(widget.product),
-            ),
-          ],
-        );
-      }
-    );
+              onPressed: () {
+                widget.provider.addToBasket(widget.product);
+                // Update the TextEditingController after the quantity is updated
+                setState(() {
+                  _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+                });
+              }),
+        ],
+      );
+    });
   }
 }
