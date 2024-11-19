@@ -27,13 +27,6 @@ class _PandingOrderScreenState extends State<PandingOrderScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    debugPrint("😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃");
-
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (isPendingScreenTap) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

@@ -1,3 +1,4 @@
+import 'package:everest/apis/models/product_item_model.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
 import 'package:everest/view/barcode_screen/barcode_scanner_screen.dart';
@@ -189,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 0.0),
                           child: provider.selectCategory == 1
                               ? ListView.builder(
                                   itemCount: provider.categoryList.length,
@@ -212,11 +213,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Row(
                                         children: [
                                           product.itemImage != 0
-                                              ? networkPngUtils(networkImage: product.itemImage.toString(), height: 70, width: 70)
+                                              ? networkPngUtils(networkImage: product.itemImage.toString(), height: 65, width: 65)
                                               : assetPngUtils(
-                                                  assetImage: "assets/image/everest_wholesale logo.png", height: 70, width: 70),
+                                                  assetImage: "assets/image/everest_wholesale logo.png", height: 65, width: 65),
                                           Expanded(
-                                            flex: 5,
+                                            flex: 14,
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
@@ -228,27 +229,85 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                           Expanded(
-                                              flex: 3,
+                                              flex: 9,
                                               child: provider.quantity > 0
-                                                  ? Row(
-                                                      children: [
-                                                        IconButton(
-                                                          icon: Icon(Icons.remove,
-                                                              color: provider.quantity > 0 ? Colors.red : Colors.grey),
-                                                          onPressed: provider.quantity > 0
-                                                              ? () => provider.removeFromBasket(product)
-                                                              : null,
-                                                        ),
-                                                        Text('${provider.quantity}'),
-                                                        Padding(
-                                                          padding: const EdgeInsets.all(7.0),
-                                                          child: GestureDetector(
-                                                            child: Icon(Icons.add, color: Colors.green),
-                                                            onTap: () => provider.addToBasket(product),
-                                                          ),
-                                                        ),
-                                                      ],
+                                                  ? ProductQuantityWidget(
+                                                      product: product,
+                                                      provider: provider,
                                                     )
+                                                  // Row(
+                                                  //     children: [
+                                                  //       IconButton(
+                                                  //         icon: Icon(Icons.remove,
+                                                  //             color: provider.quantity > 0 ? Colors.red : Colors.grey),
+                                                  //         onPressed: provider.quantity > 0
+                                                  //             ? () => provider.removeFromBasket(product)
+                                                  //             : null,
+                                                  //       ),
+                                                  //       // Text('${provider.quantity}'),
+                                                  //       // Display quantity manually with TextField
+                                                  //       // Container(
+                                                  //       //   width: 40,
+                                                  //       //   child: TextField(
+                                                  //       //     controller: TextEditingController(text: '${provider.quantity}'),
+                                                  //       //     keyboardType: TextInputType.phone,
+                                                  //       //     showCursor: false,
+                                                  //       //     textAlign: TextAlign.center,
+                                                  //       //     decoration: InputDecoration(
+                                                  //       //       border: OutlineInputBorder(borderSide: BorderSide.none),
+                                                  //       //       contentPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                                                  //       //     ),
+                                                  //       //     onChanged: (value) {
+                                                  //       //       // Ensure the value is a valid positive integer
+                                                  //       //       final newQuantity = int.tryParse(value);
+                                                  //       //       if (newQuantity != null && newQuantity > 0) {
+                                                  //       //         debugPrint("UPDATED QTY -->>> $newQuantity");
+                                                  //       //         // Method to update the quantity
+                                                  //       //         provider.setQuantity(product, newQuantity);
+                                                  //       //       }
+                                                  //       //     },
+                                                  //       //   ),
+                                                  //       // ),
+
+                                                  //       Container(
+                                                  //         width: 50,
+                                                  //         child: TextField(
+                                                  //           controller: provider.quantityController,
+                                                  //           keyboardType: TextInputType.number,
+                                                  //           textAlign: TextAlign.center,
+                                                  //           showCursor: true, // Show the cursor
+                                                  //           decoration: InputDecoration(
+                                                  //             border: InputBorder.none, // Remove border
+                                                  //             isDense: true, // Avoid extra space
+                                                  //           ),
+                                                  //           onChanged: (value) {
+                                                  //             // Ensure the value is a valid positive integer
+                                                  //             final newQuantity = int.tryParse(value);
+                                                  //             if (newQuantity != null && newQuantity > 0) {
+                                                  //               provider.setQuantity(product, newQuantity);
+                                                  //             } else if (value.isEmpty) {
+                                                  //               // Handle empty case (set to 0 or remove from basket)
+                                                  //               provider.setQuantity(product, 0);
+                                                  //             }
+                                                  //           },
+                                                  //           onSubmitted: (value) {
+                                                  //             // Optionally, handle when the user presses "done"
+                                                  //             final newQuantity = int.tryParse(value);
+                                                  //             if (newQuantity != null && newQuantity > 0) {
+                                                  //               provider.setQuantity(product, newQuantity);
+                                                  //             }
+                                                  //           },
+                                                  //         ),
+                                                  //       ),
+                                                  //       Padding(
+                                                  //         padding: const EdgeInsets.all(7.0),
+                                                  //         child: GestureDetector(
+                                                  //           child: Icon(Icons.add, color: Colors.green),
+                                                  //           onTap: () => provider.addToBasket(product),
+                                                  //         ),
+                                                  //       ),
+                                                  //     ],
+                                                  //   )
                                                   : CenterTextButtonWidget(
                                                       height: 30,
                                                       width: 200,
@@ -439,6 +498,90 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         );
       },
+    );
+  }
+}
+
+class ProductQuantityWidget extends StatefulWidget {
+  final ProductItemResponse product;
+  final HomeProvider provider;
+
+  ProductQuantityWidget({
+    required this.product,
+    required this.provider,
+  });
+
+  @override
+  _ProductQuantityWidgetState createState() => _ProductQuantityWidgetState();
+}
+
+class _ProductQuantityWidgetState extends State<ProductQuantityWidget> {
+  late TextEditingController _quantityController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the TextEditingController with the current quantity
+    _quantityController = TextEditingController(text: '${widget.provider.quantity}');
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context,HomeProvider provider,_) {
+        return Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
+              onPressed: provider.quantity > 0 ? () => provider.removeFromBasket(widget.product) : null,
+            ),
+            // Use the TextEditingController to manage the quantity input
+            Container(
+              width: 24,
+              child: TextField(
+                controller: _quantityController,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: size13(),
+                showCursor: true, // Show the cursor
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none, // Remove border
+                  isDense: true, // Avoid extra space
+                ),
+                onChanged: (value) {
+                  // Ensure the value is a valid positive integer
+                  final newQuantity = int.tryParse(value);
+                  if (newQuantity != null && newQuantity > 0) {
+                    provider.setQuantity(widget.product, newQuantity);
+                  } else if (value.isEmpty) {
+                    // Handle empty case (set to 0 or remove from basket)
+                    provider.setQuantity(widget.product, 0);
+                  }
+                },
+                onSubmitted: (value) {
+                  // Optionally, handle when the user presses "done"
+                  final newQuantity = int.tryParse(value);
+                  if (newQuantity != null && newQuantity > 0) {
+                    provider.setQuantity(widget.product, newQuantity);
+                  }
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.add, color: Colors.green),
+              onPressed: () => widget.provider.addToBasket(widget.product),
+            ),
+          ],
+        );
+      }
     );
   }
 }

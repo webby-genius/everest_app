@@ -24,8 +24,8 @@ class _PromotionScreenState extends State<PromotionScreen> {
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 210,
           childAspectRatio: 0.65,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 16,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
         ),
         itemCount: widget.categoryList.length,
         padding: EdgeInsets.zero,
@@ -51,8 +51,17 @@ class _PromotionScreenState extends State<PromotionScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 product.itemImage != 0
-                    ? networkPngUtils(networkImage: product.itemImage.toString(), height: 100, fit: BoxFit.contain)
-                    : assetPngUtils(assetImage: "assets/image/everest_wholesale logo.png", height: 110, width: 150),
+                    ? networkPngUtils(
+                        networkImage: product.itemImage.toString(),
+                        height: 100,
+                        width: 150,
+                        // fit: BoxFit.contain,
+                      )
+                    : assetPngUtils(
+                        assetImage: "assets/image/everest_wholesale logo.png",
+                        height: 100,
+                        width: 150,
+                      ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -85,7 +94,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
                           color: ColorUtils.successColor,
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                              padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 5),
                               child: Text(
                                 "Add to Basket",
                                 style: size13(fw: FW.bold, fontColor: ColorUtils.whiteColor),

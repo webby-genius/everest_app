@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 
 class HomeProvider extends ChangeNotifier {
   final searchProductController = TextEditingController();
+  TextEditingController quantityController = TextEditingController();
 
   // var product;
   int _quantity = 0;
@@ -172,6 +173,12 @@ class HomeProvider extends ChangeNotifier {
     _selectCategory = value;
     notifyListeners();
   }
+  bool _isEditing = false;
+  bool get isEditing => _isEditing;
+set isEditing(bool value){
+  _isEditing = value;
+  notifyListeners();
+}
 
   void selectItemCategory(String category) {
     _selectedCategory = category;
@@ -208,6 +215,17 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void setQuantity(ProductItemResponse product, int quantity) {
+  if (_basket.containsKey(product)) {
+    if (quantity > 0) {
+      _basket[product] = quantity;
+    } else {
+      _basket.remove(product);
+    }
+    notifyListeners();
+  }
+}
 
   void filterProducts(String query) {
     List<ProductItemResponse> filteredByQuery =
