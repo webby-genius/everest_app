@@ -30,13 +30,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
     super.initState();
     final provider = Provider.of<DashBoardProvider>(context, listen: false);
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // provider.currentIndex = 0;
+    });
     homeScreen = HomeScreen(advancedDrawerController: provider.advancedDrawerController);
     debugPrint("12321231231231231🥶🥶🥶🥶🥶🥶🥶🥶");
   }
 
   @override
   void dispose() {
+    // final provider = Provider.of<DashBoardProvider>(context, listen: false);
+    debugPrint("<----------- DISPOSE 🥶🥶🥶🥶🥶🥶🥶🥶 DISPOSE -----------> ");
     WidgetsBinding.instance.removeObserver(this);
+    // Provider.of<DashBoardProvider>(context, listen: false).advancedDrawerController.dispose();
     super.dispose();
   }
 
@@ -114,7 +120,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
                                 setState(() {
                                   isPendingScreenTap = true;
                                 });
-                               dashProvider.setScreen(3);
+                                dashProvider.setScreen(3);
                               },
                               title: Text('Pending Order', style: size18(fw: FW.medium, fontColor: ColorUtils.blackColor)),
                             ),
@@ -138,10 +144,11 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
               ),
             ),
           ),
-          child: Consumer<HomeProvider>(
-            builder: (context, provider, _) {
+          child: Consumer2(
+            builder: (context, HomeProvider provider, DashBoardProvider dashBoardProvider, _) {
               return Scaffold(
                 backgroundColor: Colors.white,
+                // appBar: dashBoardProvider.currentIndex == 0 ? AppBar() : null,
                 body: IndexedStack(
                   index: dashProvider.currentIndex,
                   children: [

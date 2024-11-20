@@ -38,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    // widget.advancedDrawerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, HomeProvider provider, _) {
       return GestureDetector(
@@ -61,7 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.only(bottom: 20.0),
                         child: TextButton(
                           onPressed: () {
-                            widget.advancedDrawerController.showDrawer();
+                            if (mounted) {
+                              widget.advancedDrawerController.showDrawer();
+                            }
+                            // widget.advancedDrawerController.showDrawer();
                           },
                           child: ValueListenableBuilder<AdvancedDrawerValue>(
                               valueListenable: widget.advancedDrawerController,
@@ -449,7 +458,7 @@ class _ProductQuantityWidgetState extends State<ProductQuantityWidget> {
   void initState() {
     super.initState();
     // Initialize the TextEditingController with the current quantity
-    _quantityController = TextEditingController(text: '${widget.provider.quantity}');
+    _quantityController = TextEditingController(text: '${widget.provider.basket[widget.product] ?? 0}');
   }
 
   @override
@@ -461,65 +470,169 @@ class _ProductQuantityWidgetState extends State<ProductQuantityWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, HomeProvider provider, _) {
+    return Consumer<HomeProvider>(builder: (context, provider, _) {
+      // Check if the text field is empty or invalid
+      String inputValue = _quantityController.text.trim();
+      bool isValidQuantity = int.tryParse(inputValue) != null && int.tryParse(inputValue)! > 0;
+
       return Row(
         children: [
           IconButton(
-            icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
-            onPressed: provider.quantity > 0
+            icon: Icon(Icons.remove, color: provider.basket[widget.product]! > 0 ? Colors.red : Colors.grey),
+            onPressed: provider.basket[widget.product]! > 0
                 ? () {
-                    // Update the TextEditingController after the quantity is updated
+                    // Decrease quantity logic
                     provider.removeFromBasket(widget.product);
-                    setState(() {
-                      _quantityController.text = '${provider.basket[widget.product] ?? 0}';
-                    });
+                    // Update text field after decreasing quantity
+                    _quantityController.text = '${provider.basket[widget.product] ?? 0}';
                   }
                 : null,
           ),
-          // Use the TextEditingController to manage the quantity input
+          // The TextField that handles manual input of quantity
           Container(
-            width: 24,
+            width: 29,
             child: TextField(
               controller: _quantityController,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               style: size13(),
-              showCursor: true, // Show the cursor
+              showCursor: true,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.zero,
-                border: InputBorder.none, // Remove border
-                isDense: true, // Avoid extra space
+                border: InputBorder.none,
+                isDense: true,
               ),
               onChanged: (value) {
-                // Ensure the value is a valid positive integer
+                // If the value is valid, set the quantity, otherwise set to 0
                 final newQuantity = int.tryParse(value);
                 if (newQuantity != null && newQuantity > 0) {
                   provider.setQuantity(widget.product, newQuantity);
                 } else if (value.isEmpty) {
-                  // Handle empty case (set to 0 or remove from basket)
                   provider.setQuantity(widget.product, 0);
                 }
               },
               onSubmitted: (value) {
-                // Optionally, handle when the user presses "done"
                 final newQuantity = int.tryParse(value);
                 if (newQuantity != null && newQuantity > 0) {
                   provider.setQuantity(widget.product, newQuantity);
+                } else if (value.isEmpty) {
+                  provider.setQuantity(widget.product, 0);
                 }
               },
             ),
           ),
-          IconButton(
-              icon: Icon(Icons.add, color: Colors.green),
-              onPressed: () {
-                widget.provider.addToBasket(widget.product);
-                // Update the TextEditingController after the quantity is updated
-                setState(() {
-                  _quantityController.text = '${provider.basket[widget.product] ?? 0}';
-                });
-              }),
+          // IconButton(
+          //   icon: Icon(Icons.add, color: Colors.green),
+          //   onPressed: isValidQuantity
+          //       ? () {
+          //           // Add to basket if quantity is valid
+          //           provider.addToBasket(widget.product);
+          //           // Update the text field after adding to the basket
+          //           _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+          //         }
+          //       : null, // Disable button if quantity is invalid
+          // ),
+          GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Icon(Icons.add, color: Colors.green),
+            ),
+            onTap: isValidQuantity
+                ? () {
+                    // Add to basket if quantity is valid
+                    provider.addToBasket(widget.product);
+                    // Update the text field after adding to the basket
+                    _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+                  }
+                : null, // Disable button if quantity is invalid,
+          )
         ],
       );
     });
   }
 }
+
+// class _ProductQuantityWidgetState extends State<ProductQuantityWidget> {
+//   late TextEditingController _quantityController;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Initialize the TextEditingController with the current quantity
+//     _quantityController = TextEditingController(text: '${widget.provider.quantity}');
+//   }
+
+//   @override
+//   void dispose() {
+//     // Clean up the controller when the widget is disposed
+//     _quantityController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer(builder: (context, HomeProvider provider, _) {
+//       return Row(
+//         children: [
+//           IconButton(
+//             icon: Icon(Icons.remove, color: provider.quantity > 0 ? Colors.red : Colors.grey),
+//             onPressed: provider.quantity > 0
+//                 ? () {
+//                     // Update the TextEditingController after the quantity is updated
+//                     provider.removeFromBasket(widget.product);
+//                     setState(() {
+//                       _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+//                     });
+//                   }
+//                 : null,
+//           ),
+//           // Use the TextEditingController to manage the quantity input
+//           Container(
+//             width: 24,
+//             child: TextField(
+//               controller: _quantityController,
+//               keyboardType: TextInputType.number,
+//               textAlign: TextAlign.center,
+//               style: size13(),
+//               showCursor: true, // Show the cursor
+//               decoration: InputDecoration(
+//                 contentPadding: EdgeInsets.zero,
+//                 border: InputBorder.none, // Remove border
+//                 isDense: true, // Avoid extra space
+//               ),
+//               onChanged: (value) {
+//                 // Ensure the value is a valid positive integer
+//                 final newQuantity = int.tryParse(value);
+//                 if (newQuantity != null && newQuantity > 0) {
+//                   provider.setQuantity(widget.product, newQuantity);
+//                 } else if (value.isEmpty) {
+//                   // Handle empty case (set to 0 or remove from basket)
+//                   provider.setQuantity(widget.product, 0);
+//                 }
+//               },
+//               onSubmitted: (value) {
+//                 // Optionally, handle when the user presses "done"
+//                 final newQuantity = int.tryParse(value);
+//                 if (newQuantity != null && newQuantity > 0) {
+//                   provider.setQuantity(widget.product, newQuantity);
+//                 } else if (value.isEmpty) {
+//                   // Handle empty case on submit
+//                   provider.setQuantity(widget.product, 0);
+//                 }
+//               },
+//             ),
+//           ),
+//           IconButton(
+//               icon: Icon(Icons.add, color: Colors.green),
+//               onPressed: () {
+//                 widget.provider.addToBasket(widget.product);
+//                 // Update the TextEditingController after the quantity is updated
+//                 setState(() {
+//                   _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+//                 });
+//               }),
+//         ],
+//       );
+//     });
+//   }
+// }

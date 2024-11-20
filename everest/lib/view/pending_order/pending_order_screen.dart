@@ -27,6 +27,12 @@ class _PandingOrderScreenState extends State<PandingOrderScreen> {
   }
 
   @override
+  void dispose() {
+    // widget.advancedDrawerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (isPendingScreenTap) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

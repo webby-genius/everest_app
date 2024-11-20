@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:everest/apis/models/product_item_model.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
 import 'package:everest/view/barcode_screen/barcode_provider.dart';
@@ -7,6 +8,7 @@ import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/widgets/LoadingWidget.dart';
 import 'package:everest/widgets/custom_images/asset_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
@@ -36,7 +38,8 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
       if (showScanningLine) {
         setState(() {
           scanningLinePosition += 5; // Move the line down
-          if (scanningLinePosition > 220) { // Reset when it goes beyond the container height
+          if (scanningLinePosition > 220) {
+            // Reset when it goes beyond the container height
             scanningLinePosition = 0.0;
           }
         });
@@ -183,19 +186,20 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                                           Expanded(
                                             flex: 3,
                                             child: quantity > 0
-                                                ? Row(
-                                                    children: [
-                                                      IconButton(
-                                                        icon: Icon(Icons.remove, color: quantity > 0 ? Colors.red : Colors.grey),
-                                                        onPressed: quantity > 0 ? () => homeProvider.removeFromBasket(product) : null,
-                                                      ),
-                                                      Text('$quantity'),
-                                                      IconButton(
-                                                        icon: Icon(Icons.add, color: Colors.green),
-                                                        onPressed: () => homeProvider.addToBasket(product),
-                                                      ),
-                                                    ],
-                                                  )
+                                                ? BarcodeProductQtyWidget(product: product, provider: homeProvider)
+                                                // Row(
+                                                //     children: [
+                                                //       IconButton(
+                                                //         icon: Icon(Icons.remove, color: quantity > 0 ? Colors.red : Colors.grey),
+                                                //         onPressed: quantity > 0 ? () => homeProvider.removeFromBasket(product) : null,
+                                                //       ),
+                                                //       Text('$quantity'),
+                                                //       IconButton(
+                                                //         icon: Icon(Icons.add, color: Colors.green),
+                                                //         onPressed: () => homeProvider.addToBasket(product),
+                                                //       ),
+                                                //     ],
+                                                //   )
                                                 : GestureDetector(
                                                     onTap: () => homeProvider.addToBasket(product),
                                                     child: Container(
@@ -231,6 +235,111 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
     );
   }
 }
+
+class BarcodeProductQtyWidget extends StatefulWidget {
+  final ProductItemResponse product;
+  final HomeProvider provider;
+
+  BarcodeProductQtyWidget({
+    required this.product,
+    required this.provider,
+  });
+
+  @override
+  _BarcodeProductQtyWidgetState createState() => _BarcodeProductQtyWidgetState();
+}
+
+class _BarcodeProductQtyWidgetState extends State<BarcodeProductQtyWidget> {
+  late TextEditingController _quantityController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the TextEditingController with the current quantity
+    _quantityController = TextEditingController(text: '${widget.provider.basket[widget.product] ?? 0}');
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<HomeProvider>(builder: (context, provider, _) {
+      // Check if the text field is empty or invalid
+      String inputValue = _quantityController.text.trim();
+      bool isValidQuantity = int.tryParse(inputValue) != null && int.tryParse(inputValue)! > 0;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.remove, color: provider.basket[widget.product]! > 0 ? Colors.red : Colors.grey),
+            onPressed: provider.basket[widget.product]! > 0
+                ? () {
+                    // Decrease quantity logic
+                    provider.removeFromBasket(widget.product);
+                    // Update text field after decreasing quantity
+                    _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+                  }
+                : null,
+          ),
+          // The TextField that handles manual input of quantity
+          Container(
+            width: 28,
+            child: TextField(
+              controller: _quantityController,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: size13(),
+              showCursor: true,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.zero,
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              onChanged: (value) {
+                // If the value is valid, set the quantity, otherwise set to 0
+                final newQuantity = int.tryParse(value);
+                if (newQuantity != null && newQuantity > 0) {
+                  provider.setQuantity(widget.product, newQuantity);
+                } else if (value.isEmpty) {
+                  provider.setQuantity(widget.product, 0);
+                }
+              },
+              onSubmitted: (value) {
+                final newQuantity = int.tryParse(value);
+                if (newQuantity != null && newQuantity > 0) {
+                  provider.setQuantity(widget.product, newQuantity);
+                } else if (value.isEmpty) {
+                  provider.setQuantity(widget.product, 0);
+                }
+              },
+            ),
+          ),
+          GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.add, color: Colors.green),
+            ),
+            onTap: isValidQuantity
+                ? () {
+                    // Add to basket if quantity is valid
+                    provider.addToBasket(widget.product);
+                    // Update the text field after adding to the basket
+                    _quantityController.text = '${provider.basket[widget.product] ?? 0}';
+                  }
+                : null, // Disable button if quantity is invalid
+          ),
+        ],
+      );
+    });
+  }
+}
+
 
 
 

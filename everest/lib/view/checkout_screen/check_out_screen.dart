@@ -3,8 +3,10 @@ import 'package:everest/apis/models/product_item_model.dart';
 import 'package:everest/utils/colors.dart';
 import 'package:everest/utils/common_styles.dart';
 import 'package:everest/view/checkout_screen/checkout_provider.dart';
+import 'package:everest/view/dashboard_screen/dashboard_provider.dart';
 import 'package:everest/view/dashboard_screen/dashboard_screen.dart';
 import 'package:everest/view/home_screen/home_provider.dart';
+import 'package:everest/view/home_screen/home_screen.dart';
 import 'package:everest/widgets/LoadingWidget.dart';
 import 'package:everest/widgets/bounce_click_widget.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,12 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       provider.getShoppingCartItemListUrlResponse(context: context);
     });
     calculateSubtotal(); // Initial subtotal calculation
+  }
+
+  @override
+  void dispose() {
+    // widget.advancedDrawerController?.dispose();
+    super.dispose();
   }
 
   void calculateSubtotal() {
@@ -95,7 +103,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     double total = 0.0;
     total = subtotal; // If there are no additional charges, total is equal to subtotal
 
-    return Consumer2(builder: (context, CheckOutProvider provider, HomeProvider homeProvider, _) {
+    return Consumer3(
+        builder: (context, CheckOutProvider provider, HomeProvider homeProvider, DashBoardProvider dashBoardProvider, _) {
       return CircularProgressIndicatorWidget(
         visible: provider.isLoading,
         child: Scaffold(
@@ -125,12 +134,32 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             height: 150,
             child: BottomButtons(
               continueShoppingOnTap: () {
-                Navigator.pushAndRemoveUntil(
+                // if (widget.isDrawerScreen) {
+                //   debugPrint("IF isDrawerScreen --->>> ${widget.isDrawerScreen}");
+                //   dashBoardProvider.setScreen(0);
+                // }
+                //else {
+                //   debugPrint("------------- ELSE ORDER SCREEN -------------");
+                //   Navigator.pop(context);
+                //   // Navigator.pushAndRemoveUntil(
+                //   //     context,
+                //   //     MaterialPageRoute(
+                //   //       builder: (context) => DashBoardScreen(),
+                //   //     ),
+                //   //     (route) => false);
+                // }
+                if (widget.isDrawerScreen) {
+                  debugPrint("IF isDrawerScreen --->>> ${widget.isDrawerScreen}");
+                  setState(() {
+                    homeProvider.clearBasket();
+                  });
+                  dashBoardProvider.setScreen(0);
+                } else {
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => DashBoardScreen(),
-                    ),
-                    (route) => false);
+                    MaterialPageRoute(builder: (context) => DashBoardScreen()),
+                  );
+                }
               },
               proceedToOrderOnTap: () {
                 List<Map<String, dynamic>> orderItems = widget.basket.entries.map((entry) {
@@ -160,6 +189,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 provider.checkOutSaveApiResponse(
                   context: context,
                   orderItems: orderItems,
+                  isDrawerScreen: widget.isDrawerScreen,
                 );
               },
             ),

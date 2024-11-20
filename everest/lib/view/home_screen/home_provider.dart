@@ -158,8 +158,6 @@ class HomeProvider extends ChangeNotifier {
   List<ProductItemResponse> _filteredCategoryList = [];
   String _selectedCategory = 'All';
 
-  final Map<ProductItemResponse, int> _basket = {};
-
   HomeProvider() {
     _filteredCategoryList = _categoryList;
     searchProductController.addListener(() {
@@ -173,12 +171,13 @@ class HomeProvider extends ChangeNotifier {
     _selectCategory = value;
     notifyListeners();
   }
+
   bool _isEditing = false;
   bool get isEditing => _isEditing;
-set isEditing(bool value){
-  _isEditing = value;
-  notifyListeners();
-}
+  set isEditing(bool value) {
+    _isEditing = value;
+    notifyListeners();
+  }
 
   void selectItemCategory(String category) {
     _selectedCategory = category;
@@ -186,7 +185,7 @@ set isEditing(bool value){
   }
 
   List<ProductItemResponse> get categoryList => _filteredCategoryList;
-
+  final Map<ProductItemResponse, int> _basket = {};
   Map<ProductItemResponse, int> get basket => _basket;
 
   String get selectedCategory => _selectedCategory;
@@ -194,6 +193,12 @@ set isEditing(bool value){
     _selectedCategory = value;
     filterProducts(searchProductController.text); // Apply filter when category changes
     notifyListeners();
+  }
+
+  // Method to clear the basket
+  void clearBasket() {
+    _basket.clear();
+    notifyListeners(); // Notify listeners after clearing
   }
 
   void addToBasket(ProductItemResponse product) {
@@ -216,16 +221,30 @@ set isEditing(bool value){
     }
   }
 
+//   void setQuantity(ProductItemResponse product, int quantity) {
+//   if (_basket.containsKey(product)) {
+//     if (quantity > 0) {
+//       _basket[product] = quantity;
+//     } else {
+//       _basket.remove(product);
+//     }
+//     notifyListeners();
+//   }
+// }
   void setQuantity(ProductItemResponse product, int quantity) {
-  if (_basket.containsKey(product)) {
-    if (quantity > 0) {
+    if (_basket.containsKey(product)) {
+      if (quantity > 0) {
+        _basket[product] = quantity;
+      } else {
+        _basket.remove(product); // Remove the product if the quantity is set to 0
+      }
+      notifyListeners();
+    } else if (quantity > 0) {
+      // If the product is not in the basket and quantity is greater than 0, add it
       _basket[product] = quantity;
-    } else {
-      _basket.remove(product);
+      notifyListeners();
     }
-    notifyListeners();
   }
-}
 
   void filterProducts(String query) {
     List<ProductItemResponse> filteredByQuery =

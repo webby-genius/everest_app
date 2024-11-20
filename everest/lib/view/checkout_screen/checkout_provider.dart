@@ -6,6 +6,7 @@ import 'package:everest/apis/models/checkout_save_model.dart';
 import 'package:everest/apis/models/proceed_order_model.dart';
 import 'package:everest/view/dashboard_screen/dashboard_provider.dart';
 import 'package:everest/view/dashboard_screen/dashboard_screen.dart';
+import 'package:everest/view/home_screen/home_provider.dart';
 import 'package:everest/widgets/common_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -85,6 +86,7 @@ class CheckOutProvider extends ChangeNotifier {
   Future checkOutSaveApiResponse({
     required BuildContext context,
     required List<Map<String, dynamic>> orderItems,
+    bool isDrawerScreen = false,
   }) async {
     // saveOrderItems.clear();
     // List<SaveOrderItem> convertOrderItemsToSaveOrderItems(List<OrderItemModel> orderItems) {
@@ -120,12 +122,21 @@ class CheckOutProvider extends ChangeNotifier {
         if (checkOutSaveResponse != null) {
           debugPrint("!!!!!!!!!!!---------- SUCESS! ----------!!!!!!!!!!");
           FlutterToastWidget.show("Order save successfully!", "success");
-          Navigator.pushAndRemoveUntil(
+          // Navigator.pushAndRemoveUntil(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => DashBoardScreen(),
+          //     ),
+          //     (route) => false);
+          if (isDrawerScreen) {
+            Provider.of<HomeProvider>(context, listen: false).clearBasket();
+            Provider.of<DashBoardProvider>(context, listen: false).setScreen(0);
+          } else {
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => DashBoardScreen(),
-              ),
-              (route) => false);
+              MaterialPageRoute(builder: (context) => DashBoardScreen()),
+            );
+          }
           notifyListeners();
         } else {
           FlutterToastWidget.show("Somthing went wrong!", "error");

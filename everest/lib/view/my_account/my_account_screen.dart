@@ -26,6 +26,12 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   }
 
   @override
+  void dispose() {
+    // widget.advancedDrawerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, MyAccountProvider provider, _) {
       return CircularProgressIndicatorWidget(
