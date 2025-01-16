@@ -15,11 +15,4 @@ class DashBoardProvider extends ChangeNotifier {
     notifyListeners();
     advancedDrawerController.hideDrawer();
   }
-
-  // @override
-  // void dispose() {
-  //   debugPrint("---------------------DISPOSE PROVIDER-----------------------------");
-  //   advancedDrawerController.dispose();
-  //   super.dispose();
-  // }
 }
